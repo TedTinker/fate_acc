@@ -27,6 +27,8 @@ def Damage(damage_list = [], count_list = []):
 
 
 import pickle 
+import tkinter as tk
+from tkinter import filedialog
 
 class Thing:
     
@@ -44,16 +46,15 @@ class Thing:
         self.failed = False
         
         if(load):
-            try:
-                with open('saved/{}.pickle'.format(self.name), 'rb') as handle:
-                    self = pickle.load(handle)
-            except:
-                print("Wasn't able to load {}.pickle.".format(self.name))
-                self.failed = True
-            print(self.failed)
+            root = tk.Tk() ; root.withdraw()
+            file_path = filedialog.askopenfilename()
+            with open(file_path.format(self.name), 'rb') as handle:
+                self = pickle.load(handle)
             
     def save(self):
-        with open('saved/{}.pickle'.format(self.name), 'wb') as handle:
+        root = tk.Tk() ; root.withdraw()
+        file_path = filedialog.askdirectory()
+        with open('{}/{}.pickle'.format(file_path, self.name), 'wb') as handle: 
             pickle.dump(self, handle)
             
     def __str__(self):

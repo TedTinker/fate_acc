@@ -5,12 +5,9 @@ game = Game()
 
 
 
-def get_load_this(load_button):
-    def load_this():
-        thing = Thing(name = load_button.text, load = load_button.text)
-        if(thing.failed): return
-        thing_object(thing)
-    return(load_this)
+def load_this():
+    thing = Thing(load = True)
+    thing_object(thing)
 
 def thing_object(thing):
     thing_obj = game.add_object(
@@ -182,8 +179,6 @@ def make_stunt_menu(group = ""):
 
 new = game.add_object(name = "NEW", color = (0,0,0), text_color = (255, 255, 255), pos = (.01, .01), size = (.1, .1), 
              double_click = make_thing_menu(group = "NEW_THING").assemble_menu)
-load = game.add_object(name = "LOAD", color = (0,0,0), text_color = (255, 255, 255), pos = (w/h - .31, .01), size = (.3, .1), 
-             typeable = True, text = "None")
-load.double_click = get_load_this(load)
+load = game.add_object(name = "LOAD", color = (0,0,0), text_color = (255, 255, 255), pos = (w/h - .11, .01), size = (.1, .1), double_click = load_this)
 
 game.run()
