@@ -17,7 +17,7 @@ from tkinter import filedialog
 class Thing:
     
     def __init__(
-            self, name = "NA", description = "NA", fate_points = str(0), refresh = str(0), 
+            self, name = "NA", description = "NA", fate_points = str(3), refresh = str(3), 
             aspects = [], stunts = [], approaches = New_Approaches(),  
             stress = Damage([1, 2, 3], [1, 1, 1]), consequences = Damage([2, 4, 6], [1, 1, 1]),
             load = False):
@@ -32,11 +32,17 @@ class Thing:
         if(load):
             file_path = filedialog.askopenfilename()
             try:
-                with open(file_path.format(self.name), 'rb') as handle:
-                    self = pickle.load(handle)
+                with open(file_path, 'rb') as handle:
+                    thing = pickle.load(handle)
             except:
                 print("\nCouldn't load {}.".format(file_path))
                 self.failed = True
+                return
+            self.name = thing.name ; self.description = thing.description 
+            self.fate_points = thing.fate_points ; self.refresh = thing.refresh
+            self.aspects = thing.aspects ; self.stunts = thing.stunts
+            self.approaches = thing.approaches
+            self.stress = thing.stress ; self.consequences = thing.consequences
                 
     def New_Approaches(self, one_to_six):
         self.approaches = {approach_list[i] : str(one_to_six[i]) for i in range(6)}
@@ -75,3 +81,7 @@ if __name__ == "__main__":
     example.consequences["4"][0] = "Broken arm"
     print(example)
     example.save()
+    
+    print("\n\n\n")
+    example = Thing(load = True)
+    print(example)

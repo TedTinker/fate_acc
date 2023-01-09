@@ -149,6 +149,8 @@ class New_Thing_Menu(Thing_Menu):
         
 def load_this():
     thing = Thing(load = True)
+    print("\nafter loading:")
+    print(thing)
     if(thing.failed): return
     game.add_object(thing.name, color = (0,0,0), text_color = (255, 255, 255), pos = ("center", "center"), size = (.3, .1), 
                  double_click = Thing_Menu(thing).assemble_menu, draggable = True)
