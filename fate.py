@@ -45,19 +45,19 @@ class Stunt_Menu(Menu):
         del_stunt = Object(self.thing.name + " Delete Stunt", "Delete Stunt", color = (0, 0, 0), text_color = (255, 255, 255), double_click = self.del_stunt)
         super().__init__(self.thing.name + " Stunts", list_of_rows = [[add_stunt], [del_stunt]])
         for text in self.thing.stunts:
-            self.add_stunt(text)
+            self.add_stunt(text, assemble = False)
         
-    def add_stunt(self, text = "NA"):
+    def add_stunt(self, text = "NA", assemble = True):
         stu = self.aspect.copy()
         stu.name = str(len(self.active)-2)
         stu.text = text
         self.active.insert(-2, [stu]) ; self.current.append([stu])
-        self.assemble_menu()
+        if(assemble): self.assemble_menu()
         
-    def del_stunt(self):
+    def del_stunt(self, assemble = True):
         if(len(self.active) == 3): return
         self.active.pop(-3)
-        self.assemble_menu()
+        if(assemble): self.assemble_menu()
         
     def adjust_thing(self):
         stunts = [row[0].name + " : " + row[0].text for row in self.saved[1:-2]]
@@ -137,19 +137,14 @@ class New_Thing_Menu(Thing_Menu):
         super().__init__(Thing())
         
     def save_and_close(self):
-        print("\n", 1)
         self.just_save()
         self.just_close()
-        print("\n", 2)
         game.add_object(self.thing.name, color = (0,0,0), text_color = (255, 255, 255), pos = ("center", "center"), size = (.3, .1), 
                      double_click = Thing_Menu(self.thing).assemble_menu, draggable = True)
-        print("\n", 3)
         self.totally_reset()
         self.aspect_menu.totally_reset()
         self.stunt_menu.totally_reset()
-        
-        print("\n", 4)
-        
+                
         
         
 def load_this():

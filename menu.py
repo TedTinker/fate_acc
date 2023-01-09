@@ -48,13 +48,11 @@ class Menu:
         
     def assemble_menu(self):  
         self.just_close()
-        print("\n\n")
         game.objects.append(self.bg)
         for y, row in enumerate(self.active):
             for x, obj in enumerate(row):
                 obj.pos, obj.size = self.pos_size(x, y, len(row))
                 game.objects.append(obj)
-                print("Adding ", obj.ID, end = ".   ")
                 
     def adjust_thing(self):
         pass # For Superclasses
@@ -73,11 +71,9 @@ class Menu:
         self.active  = [[obj.copy() for obj in row] for row in self.original]
                 
     def just_close(self):
-        print("\n\n")
         game.remove_object(self.bg.ID)
         for row in self.current:
             for obj in row:
-                print("Removing ", obj.ID, end = ".   ")
                 game.remove_object(obj.ID)
                 
     def save_and_close(self):
