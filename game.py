@@ -11,10 +11,11 @@ w, h = pyautogui.size()
 class Object:
     
     def __init__(
-            self, group = "", name = "", color = (0,0,0), text_color = None, pos = (0, 0), size = (1, 1), text = "", 
+            self, ID, name = None, color = (0,0,0), text_color = None, pos = (0, 0), size = (1, 1), text = "", 
             typeable = False, draggable = False, click = lambda : None, double_click = lambda : None):
         
-        self.group = group ; self.name = name ; self.color = color ; self.text_color = text_color 
+        self.ID = ID ; self.name = name if name != None else ID
+        self.color = color ; self.text_color = text_color 
         self.obj = pygame.Surface((1,1)) ; self.obj.fill(self.color)
         
         self.pos = pos ; self.size = size
@@ -44,10 +45,13 @@ class Object:
         
     def copy(self):
         obj_copy = Object(
-            group = self.group, name = self.name, color = self.color, text_color = self.text_color, 
+            ID = self.ID, name = self.name, color = self.color, text_color = self.text_color, 
             pos = self.pos, size = self.size, text = self.text, draggable = self.draggable, 
             typeable = self.typeable, click = self.click, double_click = self.double_click)
         return(obj_copy)
+    
+    def __str__(self):
+        return("{}: {}".format(self.name, self.text))
         
 
 
@@ -57,7 +61,7 @@ class Game:
         pygame.init()
         self.paras = {"size" : size} 
         self.objects = [] 
-        self.bg = self.add_object("", "bg", color = (255, 255, 255), size = (w/h, 1), pos = (0, 0))
+        self.bg = self.add_object("bg", "bg", color = (255, 255, 255), size = (w/h, 1), pos = (0, 0))
         self.screen = pygame.display.set_mode(self.paras["size"], RESIZABLE)
         
     def add_object(self, *args, **kwargs):
@@ -65,10 +69,10 @@ class Game:
         self.objects.append(obj)
         return(obj)
     
-    def remove_object(self, group, name):
+    def remove_object(self, ID):
         pop_these = []
         for i, obj in enumerate(self.objects):
-            if obj.group == group and obj.name == name:
+            if obj.ID == ID:
                 pop_these.append(i)
         for i in reversed(pop_these): self.objects.pop(i) 
         
@@ -172,27 +176,27 @@ class Game:
         
         
 def new_button():
-    new_button =  Object(name = "REMOVE", color = (255, 1, 1),  text_color = (0,0,0), size = (.1, .1), pos = (.5, .5),
+    new_button = Object("REMOVE", color = (255, 1, 1),  text_color = (0,0,0), size = (.1, .1), pos = (.5, .5),
                  click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
-    new_button.double_click = get_remove_button("", "REMOVE")
+    new_button.double_click = get_remove_button("REMOVE")
     game.objects.append(new_button)
     pass
 
-def get_remove_button(group, name):
+def get_remove_button(name):
     def remove_button():
-        game.remove_object(group, name)
+        game.remove_object(name)
     return(remove_button)
 
 
 
 if __name__ == "__main__":
     game = Game()
-    click = game.add_object("", "CLICK", color = (255, 1, 1), size = (.1, .1), pos = (.1, .1), text_color = (0,0,0),
+    click = game.add_object("CLICK", color = (255, 1, 1), size = (.1, .1), pos = (.1, .1), text_color = (0,0,0),
                  click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
-    drag = game.add_object("", "DRAG", color = (1, 255, 1), size = (.1, .1), pos = (.2, .2), text_color = (0,0,0),
+    drag = game.add_object("DRAG", color = (1, 255, 1), size = (.1, .1), pos = (.2, .2), text_color = (0,0,0),
                   draggable = True, click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
-    typing = game.add_object("", "TYPE", color = (1, 1, 255), size = (.5, .1), pos = (.3, .3), text_color = (0,0,0),
+    typing = game.add_object("TYPE", color = (1, 1, 255), size = (.5, .1), pos = (.3, .3), text_color = (0,0,0),
                   typeable = True, click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
-    new = game.add_object("", "NEW", color = (255, 1, 255), size = (.1, .1), pos = (.4, .4),  text_color = (0,0,0),
+    new = game.add_object("NEW", color = (255, 1, 255), size = (.1, .1), pos = (.4, .4),  text_color = (0,0,0),
                   click = lambda: print("CLICKED"), double_click = new_button)
     game.run()

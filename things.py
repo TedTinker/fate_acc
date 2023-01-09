@@ -1,22 +1,7 @@
-def Aspects(aspect_list = []):
-    aspect_dict = {}
-    for i, aspect in enumerate(aspect_list):
-        name = "High Concept" if i == 0 else "Trouble" if i == 1 else str(i-1)
-        aspect_dict[name] = aspect
-    return(aspect_dict)
-
-def Stunts(stunt_list = []): 
-    stunt_dict = {}
-    for i, stunt in enumerate(stunt_list):
-        stunt_dict[str(i+1)] = stunt
-    return(stunt_dict)
-
 approach_list = ["Careful", "Clever", "Flashy", "Forceful", "Quick", "Sneaky"]
-def Approaches(one = 0, two = 0, thr = 0, fou = 0, fiv = 0, six = 0):
-    approach_dict = {
-        approach_list[0] : one, approach_list[1] : two, approach_list[2] : thr,
-        approach_list[3] : fou, approach_list[4] : fiv, approach_list[5] : six}
-    return(approach_dict)
+def New_Approaches(one_to_six = [0,0,0,0,0,0]):
+    approaches = {approach_list[i] : str(one_to_six[i]) for i in range(6)}
+    return(approaches)
 
 def Damage(damage_list = [], count_list = []):
     damage_dict = {}
@@ -27,14 +12,13 @@ def Damage(damage_list = [], count_list = []):
 
 
 import pickle 
-import tkinter as tk
 from tkinter import filedialog
 
 class Thing:
     
     def __init__(
-            self, name = "ANONYMOUS", description = "", fate_points = 0, refresh = 0, 
-            aspects = Aspects(), stunts = Stunts(), approaches = Approaches(),  
+            self, name = "NA", description = "NA", fate_points = str(0), refresh = str(0), 
+            aspects = [], stunts = [], approaches = New_Approaches(),  
             stress = Damage([1, 2, 3], [1, 1, 1]), consequences = Damage([2, 4, 6], [1, 1, 1]),
             load = False):
         
@@ -53,6 +37,9 @@ class Thing:
             except:
                 print("\nCouldn't load {}.".format(file_path))
                 self.failed = True
+                
+    def New_Approaches(self, one_to_six):
+        self.approaches = {approach_list[i] : str(one_to_six[i]) for i in range(6)}
             
     def save(self):
         file_path = filedialog.askdirectory()
@@ -78,9 +65,9 @@ if __name__ == "__main__":
     example = Thing(
         name = "Example Thing", description = "An example thing", 
         fate_points = 0, refresh = 0, 
-        aspects = Aspects(["An awesome example", "With a problem", "And other stuff"]), 
-        stunts = Stunts(["In this situation, I'm better at this!", "In this other situation, I'm better at this other thing!"]), 
-        approaches = Approaches(1,2,3,4,5,6), 
+        aspects = ["An awesome example", "With a problem", "And other stuff"], 
+        stunts = ["In this situation, I'm better at this!", "In this other situation, I'm better at this other thing!"], 
+        approaches = New_Approaches([1,2,3,4,5,6]), 
         stress = Damage([1, 2, 3], [1, 2, 1]), 
         consequences = Damage([2, 4, 6], [1, 2, 1]),
         load = False)
