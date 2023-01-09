@@ -12,7 +12,7 @@ class Object:
     
     def __init__(
             self, group = "", name = "", color = (0,0,0), text_color = None, pos = (0, 0), size = (1, 1), text = "", 
-            typeable = False, draggable = False, click = lambda: None, double_click = lambda: None):
+            typeable = False, draggable = False, click = lambda : None, double_click = lambda : None):
         
         self.group = group ; self.name = name ; self.color = color ; self.text_color = text_color 
         self.obj = pygame.Surface((1,1)) ; self.obj.fill(self.color)

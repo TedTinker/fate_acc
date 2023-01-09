@@ -46,13 +46,15 @@ class Thing:
         self.failed = False
         
         if(load):
-            root = tk.Tk() ; root.withdraw()
             file_path = filedialog.askopenfilename()
-            with open(file_path.format(self.name), 'rb') as handle:
-                self = pickle.load(handle)
+            try:
+                with open(file_path.format(self.name), 'rb') as handle:
+                    self = pickle.load(handle)
+            except:
+                print("\nCouldn't load {}.".format(file_path))
+                self.failed = True
             
     def save(self):
-        root = tk.Tk() ; root.withdraw()
         file_path = filedialog.askdirectory()
         with open('{}/{}.pickle'.format(file_path, self.name), 'wb') as handle: 
             pickle.dump(self, handle)

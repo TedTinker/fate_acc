@@ -7,6 +7,7 @@ game = Game()
 
 def load_this():
     thing = Thing(load = True)
+    if(thing.failed): return
     thing_object(thing)
 
 def thing_object(thing):
@@ -18,11 +19,12 @@ def thing_object(thing):
     # Change stuff in the menus to reflect the thing!
 
 
-
+# Make different classes, because saving things is hard
 class Menu:
     
-    def __init__(self, group, name, bg, list_of_rows, space_between = .05,
-                 x_start = .01, x_end = w/h - .01, y_start = .01, y_end = .99):
+    def __init__(
+            self, group, name, bg, list_of_rows, space_between = .05,
+            x_start = .01, x_end = w/h - .01, y_start = .01, y_end = .99):
     
         self.group = group ; self.name = name
         self.bg = bg  ; bg.name = self.name + " " + bg.name ; self.list_of_rows = list_of_rows
@@ -96,8 +98,6 @@ class Menu:
 
                 
         
-        
-
 def make_thing_menu(group = ""):
     bg =  Object(name = "bg", color = (50, 50, 50))
     name = Object(name = "Name", color = (255, 255, 255), text_color = (0,0,0), typeable = True, text = "None")
@@ -129,7 +129,6 @@ def make_aspect_menu(group = ""):
     aspect_menu = Menu(group, "ASPECTS", bg, [[add_aspect], [delete_aspect]])
     
     def add_aspect():
-        print("Adding aspect")
         asp = aspect.copy()
         if(len(aspect_menu.list_of_rows) == 3):   asp.name = "High Concept"
         elif(len(aspect_menu.list_of_rows) == 4): asp.name = "Trouble"
@@ -139,7 +138,6 @@ def make_aspect_menu(group = ""):
     aspect_menu.list_of_rows[0][0].double_click = add_aspect 
     
     def del_aspect():
-        print("Deleting aspect")
         if(len(aspect_menu.list_of_rows) == 3): return
         aspect_menu.delete()
         aspect_menu.list_of_rows.pop(-3)
@@ -156,7 +154,6 @@ def make_stunt_menu(group = ""):
     stunt_menu = Menu(group, "STUNTS", bg, [[add_stunt], [delete_stunt]])
     
     def add_stunt():
-        print("Adding stunt")
         stu = stunt.copy()
         stu.name = str(len(stunt_menu.list_of_rows)-2)
         stunt_menu.list_of_rows.insert(-2, [stu])
@@ -164,7 +161,6 @@ def make_stunt_menu(group = ""):
     stunt_menu.list_of_rows[0][0].double_click = add_stunt
     
     def del_stunt():
-        print("Deleting stunt")
         if(len(stunt_menu.list_of_rows) == 3): return
         stunt_menu.delete()
         stunt_menu.list_of_rows.pop(-3)
@@ -179,6 +175,10 @@ def make_stunt_menu(group = ""):
 
 new = game.add_object(name = "NEW", color = (0,0,0), text_color = (255, 255, 255), pos = (.01, .01), size = (.1, .1), 
              double_click = make_thing_menu(group = "NEW_THING").assemble_menu)
-load = game.add_object(name = "LOAD", color = (0,0,0), text_color = (255, 255, 255), pos = (w/h - .11, .01), size = (.1, .1), double_click = load_this)
+load = game.add_object(name = "LOAD", color = (0,0,0), text_color = (255, 255, 255), pos = (.12, .01), size = (.1, .1), 
+             double_click = load_this)
+# For remove, consider opening a new menu
+remove = game.add_object(name = "REMOVE", color = (0,0,0), text_color = (255, 255, 255), pos = (.23, .01), size = (.1, .1),
+             double_click = lambda : None)
 
 game.run()
