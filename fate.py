@@ -2,89 +2,42 @@ from game import Object
 from menu import Menu, game
 
 from things import Thing, approach_list
-        
-        
-        
-class Aspect_Menu(Menu):
+
+
+
+class Tall_Menu(Menu):
     
-    def __init__(self, thing = Thing()):
-        self.thing = thing
-        self.aspect = Object(self.thing.name + " Aspect", "Aspect", color = (255, 255, 255), text_color = (0,0,0), typeable = True)
-        add_aspect = Object(self.thing.name + " Add Aspect", "Add Aspect",  color = (0, 0, 0), text_color = (255, 255, 255), double_click = self.add_aspect)
-        del_aspect = Object(self.thing.name + " Delete Aspect", "Delete Aspect", color = (0, 0, 0), text_color = (255, 255, 255), double_click = self.del_aspect)
-        super().__init__(self.thing.name + " Aspects", list_of_rows = [[add_aspect], [del_aspect]])
-        for text in self.thing.aspects:
-            self.add_aspect(text, assemble = False)
+    def __init__(self, kind, labels = [], thing = Thing()):
+        self.thing = thing ; self.labels = labels
+        self.item = Object(self.thing.name + " " + kind, "Aspect", color = (255, 255, 255), text_color = (0,0,0), typeable = True)
+        add_item = Object(self.thing.name + " Add " + kind, "Add " + kind,  color = (0, 0, 0), text_color = (255, 255, 255), double_click = self.add_item)
+        del_item = Object(self.thing.name + " Delete " + kind, "Delete " + kind,  color = (0, 0, 0), text_color = (255, 255, 255), double_click = self.del_item)
+        super().__init__(self.thing.name + " " + kind, list_of_rows = [[add_item], [del_item]], resetting = True)
+        self.update_based_on_thing()
         
-    def add_aspect(self, text = "NA", assemble = True):
-        asp = self.aspect.copy()
-        if(len(self.active) == 3):   asp.name = "High Concept"
-        elif(len(self.active) == 4): asp.name = "Trouble"
-        else:                        asp.name = str(len(self.active)-4)
-        asp.text = text
-        self.active.insert(-2, [asp]) ; self.current.append([asp])
-        if(assemble): self.assemble_menu()
+    def add_item(self, text = "NA", assemble = True):
+        item = self.item.copy()
+        if(len(self.active)-3 < len(self.labels)):
+            item.name = self.labels[len(self.active)-3]
+        else:
+            item.name = str(len(self.active)-2-len(self.labels))
+        item.text = text
+        self.active.insert(-2, [item]) ; self.to_remove.append(item)
+        if(assemble): self.assemble()
         
-    def del_aspect(self):
+    def del_item(self):
         if(len(self.active) == 3): return
         self.active.pop(-3)
-        self.assemble_menu()
+        self.assemble()
         
-    def adjust_thing(self):
-        aspects = [row[0].name + " : " + row[0].text for row in self.saved[1:-2]]
-        self.thing.aspects = aspects
+    def update_thing(self):
+        items = [row[0].name + " : " + row[0].text for row in self.saved[1:-2]]
+        return(items)
     
-      
-        
-class Stunt_Menu(Menu):
-    
-    def __init__(self, thing = Thing()):
-        self.thing = thing
-        self.aspect = Object(self.thing.name + " Stunt", "Stunt", color = (255, 255, 255), text_color = (0,0,0), typeable = True, text = "None")
-        add_stunt = Object(self.thing.name + " Add Stunt", "Add Stunt",  color = (0, 0, 0), text_color = (255, 255, 255), double_click = self.add_stunt)
-        del_stunt = Object(self.thing.name + " Delete Stunt", "Delete Stunt", color = (0, 0, 0), text_color = (255, 255, 255), double_click = self.del_stunt)
-        super().__init__(self.thing.name + " Stunts", list_of_rows = [[add_stunt], [del_stunt]])
-        for text in self.thing.stunts:
-            self.add_stunt(text, assemble = False)
-        
-    def add_stunt(self, text = "NA", assemble = True):
-        stu = self.aspect.copy()
-        stu.name = str(len(self.active)-2)
-        stu.text = text
-        self.active.insert(-2, [stu]) ; self.current.append([stu])
-        if(assemble): self.assemble_menu()
-        
-    def del_stunt(self, assemble = True):
-        if(len(self.active) == 3): return
-        self.active.pop(-3)
-        if(assemble): self.assemble_menu()
-        
-    def adjust_thing(self):
-        stunts = [row[0].name + " : " + row[0].text for row in self.saved[1:-2]]
-        self.thing.stunts = stunts
-        
-        
-        
-class Stress_Menu(Menu):
-    
-    def __init__(self, thing = Thing()):
-        add_stress_value = Object("Add Stress Value",  color = (0, 0, 0), text_color = (255, 255, 255), double_click = self.add_stress_value)
-        del_stress_value = Object("Delete Stress Value", color = (0, 0, 0), text_color = (255, 255, 255), double_click = self.del_stress_value)
-        super().__init__(self.thing.name + " Stress", list_of_rows = [[add_stress_value], [del_stress_value]])
-        
-    def add_stress_value(self):
-        stu = self.aspect.copy()
-        stu.name = str(len(self.active)-2)
-        self.active.insert(-2, [stu]) ; self.current.append([stu])
-        self.assemble_menu()
-        
-    def del_stress_value(self):
-        if(len(self.active) == 3): return
-        self.active.pop(-3)
-        self.assemble_menu()
-        
-    def adjust_thing(self):
-        pass
+    def update_based_on_thing(self):
+        for text in self.thing.aspects: self.add_item(text, assemble = False)
+        self.save()
+        self.reset()
         
         
         
@@ -103,11 +56,11 @@ class Thing_Menu(Menu):
         stress = Object("Stress", color = (0, 0, 0), text_color = (255, 255, 255))
         consequences = Object("Consequences", color = (0, 0, 0), text_color = (255, 255, 255))
 
-        self.aspect_menu = Aspect_Menu(thing = self.thing)
-        aspects.double_click = self.aspect_menu.assemble_menu
+        aspect_menu = Tall_Menu(kind = "Aspect", labels = ["High Concept", "Trouble"], thing = self.thing)
+        aspects.double_click = aspect_menu.assemble
         
-        self.stunt_menu = Stunt_Menu(thing = self.thing)
-        stunts.double_click = self.stunt_menu.assemble_menu
+        stunt_menu = Tall_Menu(kind = "Stunt", thing = self.thing)
+        stunts.double_click = stunt_menu.assemble
         
         list_of_rows = [
             [name, fate_points, refresh],
@@ -115,50 +68,65 @@ class Thing_Menu(Menu):
             list_of_approaches,
             [aspects, stunts],
             [stress, consequences]]
-        super().__init__(self.thing.name + " THING", list_of_rows = list_of_rows, saving = True)
+        super().__init__(self.thing.name + " THING", list_of_rows = list_of_rows, saving = True, resetting = True, save_and_close = True, close_and_reset = True)
+        self.submenus = [aspect_menu, stunt_menu]
+        for submenu in self.submenus:
+            submenu.thing = self.thing
+            submenu.reset()
         
-    def adjust_thing(self):
+    def update_thing(self):
         self.thing.name = self.saved[0][0].text
         self.thing.fate_points = self.saved[0][1].text 
         self.thing.refresh = self.saved[0][2].text 
         self.thing.description = self.saved[1][0].text
         self.thing.New_Approaches([self.saved[2][i].text for i in range(6)])
         
-        self.thing.aspects = [self.aspect_menu.saved[i][0].text for i in range(1, len(self.aspect_menu.saved)-2)]
-        self.thing.stunts = [self.stunt_menu.saved[i][0].text for i in range(1, len(self.stunt_menu.saved)-2)]
-        
+        for i, submenu in enumerate(self.submenus):
+            self.thing.aspects = [submenu.saved[i][0].text for i in range(1, len(submenu.saved)-2)]
+                    
         self.thing.save()
+        
+    def update_based_on_thing(self):
+        self.saved[0][0].text = self.thing.name 
+        self.saved[0][1].text = self.thing.fate_points 
+        self.saved[0][2].text = self.thing.refresh 
+        self.saved[1][0].text = self.thing.description 
+        for i, obj in enumerate(self.saved[2]):
+            self.saved[2][i].text = self.thing.approaches[self.saved[2][i].name]
+        self.reset()
         
         
         
 class New_Thing_Menu(Thing_Menu):
     
     def __init__(self):
-        super().__init__(Thing())
+        super().__init__(Thing(), )
         
-    def save_and_close(self):
-        self.just_save()
-        self.just_close()
+    def save(self, close = False):
+        for submenu in self.submenus: submenu.save()
+        self.saved = self.deep_copy(self.active)
+        self.update_thing()
         game.add_object(self.thing.name, color = (0,0,0), text_color = (255, 255, 255), pos = ("center", "center"), size = (.3, .1), 
-                     double_click = Thing_Menu(self.thing).assemble_menu, draggable = True)
-        self.totally_reset()
-        self.aspect_menu.totally_reset()
-        self.stunt_menu.totally_reset()
+                     double_click = Thing_Menu(self.thing).assemble, draggable = True)
+        self.reset()
+        if(close): self.close()
+        
+
                 
         
         
 def load_this():
     thing = Thing(load = True)
-    print("\nafter loading:")
-    print(thing)
     if(thing.failed): return
+    print("\nLoaded:")
+    print(thing)
     game.add_object(thing.name, color = (0,0,0), text_color = (255, 255, 255), pos = ("center", "center"), size = (.3, .1), 
-                 double_click = Thing_Menu(thing).assemble_menu, draggable = True)
+                 double_click = Thing_Menu(thing).assemble, draggable = True)
 
 
     
 new = game.add_object("NEW", color = (0,0,0), text_color = (255, 255, 255), pos = (.01, .01), size = (.1, .1), 
-             double_click = New_Thing_Menu().assemble_menu)
+             double_click = New_Thing_Menu().assemble)
 load = game.add_object("LOAD", color = (0,0,0), text_color = (255, 255, 255), pos = (.12, .01), size = (.1, .1), 
              double_click = load_this)
 # For remove, consider opening a new menu

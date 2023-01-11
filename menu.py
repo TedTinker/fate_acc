@@ -67,10 +67,10 @@ class Menu:
         if(reset): self.reset()
         
     def save(self, close = False):
+        for submenu in self.submenus: submenu.save()
         self.saved = self.deep_copy(self.active)
         self.update_thing()
         self.render() # Just for example menu below
-        for submenu in self.submenus: submenu.save()
         if(close): self.close()
         
     def reset(self, assemble = False):

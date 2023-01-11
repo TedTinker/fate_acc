@@ -29,9 +29,9 @@ class Object:
         
     def add_text(self, font = "arial"):
         if(self.text_color == None): return
-        if(not self.typeable): text = self.name
         else:
-            if(self.name == ""):   text = self.text 
+            if(self.name == "" and self.text == ""): return
+            elif(self.name == ""): text = self.text 
             elif(self.text == ""): text = self.name 
             else:                  text = self.name + " : " + self.text
         font = pygame.font.SysFont(font, 1000)
@@ -168,10 +168,11 @@ class Game:
                     change_x /= bg_size[1] ; change_y /= bg_size[1]
                     obj.pos = (obj.pos[0] + change_x, obj.pos[1] + change_y)
                     if(change_x > 0 or change_y > 0): obj.being_dragged = True
-                                        
+                                     
             old_pos = pos
             pygame.display.flip()
         pygame.quit()
+        
         
         
         
