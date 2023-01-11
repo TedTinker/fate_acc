@@ -81,9 +81,9 @@ class Thing_Menu(Menu):
         self.thing.description = self.saved[1][0].text
         self.thing.New_Approaches([self.saved[2][i].text for i in range(6)])
         
-        for i, submenu in enumerate(self.submenus):
-            self.thing.aspects = [submenu.saved[i][0].text for i in range(1, len(submenu.saved)-2)]
-                    
+        self.thing.aspects = [self.submenus[0].saved[i][0].text for i in range(1, len(self.submenus[0].saved)-2)]
+        self.thing.aspects = [self.submenus[1].saved[i][0].text for i in range(1, len(self.submenus[1].saved)-2)]        
+          
         self.thing.save()
         
     def update_based_on_thing(self):
@@ -113,8 +113,6 @@ class New_Thing_Menu(Thing_Menu):
         
 
                 
-        
-        
 def load_this():
     thing = Thing(load = True)
     if(thing.failed): return
