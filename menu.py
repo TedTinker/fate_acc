@@ -1,39 +1,45 @@
 from game import Game, Object, w, h
 
 game = Game()
-    
+
     
 
 class Menu:
     
-    def __init__(self, ID, list_of_rows = [], bg_color = (50, 50, 50), space_between = .05, saving = False):
+    def __init__(
+            self, ID, list_of_rows = [], bg_color = (50, 50, 50), space_between = .05, 
+            saving = False, resetting = False, save_and_close = False, close_and_reset = False):
         
         self.ID = ID
         
-        self.cancel = Object(
-            "CLOSE", color = (255, 0, 0), text_color = (0,0,0),
-            double_click = self.reset_and_close if saving else self.save_and_close)
-        list_of_rows.append([self.cancel])
-        self.saving = saving
-        if(self.saving):
-            self.save = Object(
-                "SAVE",   color = (0, 255, 0), text_color = (0,0,0), double_click = self.save_and_close)
-            list_of_rows[-1].append(self.save)
+        close_it = Object("CLOSE", color = (255, 0, 0), text_color = (0,0,0), double_click = lambda : self.close(reset = close_and_reset))
+        list_of_rows.append([close_it])
+            
+        if(saving):
+            save_it = Object("SAVE", color = (0, 255, 0), text_color = (0,0,0), double_click = lambda : self.save(close = save_and_close))
+            list_of_rows[-1].append(save_it)
+            
+        if(resetting):
+            reset_it = Object("RESET", color = (0, 0, 255), text_color = (0,0,0), double_click = lambda : self.reset(assemble = True))
+            list_of_rows[-1].append(reset_it)
         
         for row in list_of_rows:
-            for obj in row:
-                obj.ID = self.ID + " " + obj.ID
-                        
-        self.original = [[obj.copy() for obj in row] for row in list_of_rows]
-        self.current  = [[obj.copy() for obj in row] for row in list_of_rows]
-        self.saved    = [[obj.copy() for obj in row] for row in list_of_rows]
-        self.active   = [[obj.copy() for obj in row] for row in list_of_rows]
+            for obj in row:  obj.ID = self.ID + " " + obj.ID
+                    
+        self.active    = self.deep_copy(list_of_rows)
+        self.saved     = self.deep_copy(list_of_rows)
+        self.to_remove = []
         
         self.bg = Object(self.ID + " bg", color = bg_color)
         self.space_between = space_between
         self.x_start = space_between ; self.x_end = w/h - space_between
         self.y_start = space_between ; self.y_end = 1 - space_between
         self.bg.pos, self.bg.size = self.pos_size()
+        
+        self.submenus = []
+        
+    def deep_copy(self, list_of_rows):
+        return([[obj.copy() for obj in row] for row in list_of_rows])
         
     def pos_size(self, x = None, y = None, len_row = "bg"):
         if(len_row == "bg"):
@@ -46,48 +52,87 @@ class Menu:
         size = (x_dif - self.space_between, y_dif - self.space_between)
         return(pos, size)
         
-    def assemble_menu(self):  
-        self.just_close()
+    def assemble(self):  
+        self.close()
         game.objects.append(self.bg)
         for y, row in enumerate(self.active):
             for x, obj in enumerate(row):
                 obj.pos, obj.size = self.pos_size(x, y, len(row))
-                game.objects.append(obj)
+                game.objects.append(obj); self.to_remove.append(obj)
                 
-    def adjust_thing(self):
+    def close(self, reset = False):
+        game.remove_object(self.bg.ID)
+        for obj in self.to_remove: game.remove_object(obj.ID)
+        self.to_remove = []
+        if(reset): self.reset()
+        
+    def save(self, close = False):
+        self.saved = self.deep_copy(self.active)
+        self.update_thing()
+        self.render() # Just for example menu below
+        for submenu in self.submenus: submenu.save()
+        if(close): self.close()
+        
+    def reset(self, assemble = False):
+        self.active = self.deep_copy(self.saved)
+        self.render()
+        if(assemble == True): self.assemble()
+        for submenu in self.submenus: submenu.reset()
+        
+    def update_thing(self):
         pass # For Superclasses
         
-    def just_save(self):
-        self.saved = [[obj.copy() for obj in row] for row in self.active]
-        self.adjust_thing()
+    def update_based_on_thing(self):
+        pass # For Superclasses
         
-    def just_reset(self):
-        self.current = [[obj.copy() for obj in row] for row in self.saved]
-        self.active = [[obj.copy() for obj in row] for row in self.saved]
-        
-    def totally_reset(self):
-        self.current = [[obj.copy() for obj in row] for row in self.original]
-        self.saved   = [[obj.copy() for obj in row] for row in self.original]
-        self.active  = [[obj.copy() for obj in row] for row in self.original]
-                
-    def just_close(self):
-        game.remove_object(self.bg.ID)
-        for row in self.current:
-            for obj in row:
-                game.remove_object(obj.ID)
-                
-    def save_and_close(self):
-        self.just_save()
-        self.just_close()
-        
-    def reset_and_close(self):
-        self.just_reset()
-        self.just_close()
+    def render(self):
+        pass # For Superclasses
         
     def __str__(self):
-        s = "\n\n"
+        s = "\n\n", self.ID
         for row in self.saved:
             for obj in row:
                 s += obj.__str__() + ", "
             s += "\n"
         return(s)
+    
+    
+    
+if __name__ == "__main__":
+    
+    box  = Object("",  color = (255,255,255), text_color = (0, 0, 0))
+    
+    def add_box():
+        b = box.copy()
+        b.ID += str(len(menu.active[0])-1)
+        b.text = b.ID
+        menu.active[0].insert(-1, b) ; menu.to_remove.append(b)
+        menu.assemble()
+        render()
+        
+    def del_box():
+        if(len(menu.active[0]) == 2): return
+        menu.active[0].pop(-2)
+        menu.assemble()
+        render()
+    
+    more = Object("+", color = (0,0,0), text_color = (255, 255, 255), double_click = add_box)
+    less = Object("-", color = (0,0,0), text_color = (255, 255, 255), double_click = del_box)
+    
+    active  = Object("ACTIVE",  color = (255,0,0), text_color = (255, 255, 255))
+    saved   = Object("SAVED",   color = (0,0,255), text_color = (255, 255, 255))
+    
+    def render():
+        menu.active[1][0].text = ", ".join([menu.active[0][i].text for i in range(1,len(menu.active[0])-1)])
+        menu.active[1][1].text = ", ".join([menu.saved[0][i].text for i in range(1,len(menu.saved[0])-1)])
+        menu.assemble
+    
+    menu = Menu("TEST MENU", list_of_rows = [[more, less], [active, saved]], 
+                saving = True, resetting = True)
+    
+    menu.render = render
+    
+    show = game.add_object("SHOW", color = (0,0,0), text_color = (255, 255, 255), size = (.1, .1), pos = ("center", "center"),
+                 typeable = False, draggable = True, double_click = menu.assemble)
+    
+    game.run()
