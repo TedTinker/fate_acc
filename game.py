@@ -30,7 +30,7 @@ class Object:
     def add_text(self, font = "arial"):
         if(self.text_color == None): return
         else:
-            if(self.name == "" and self.text == ""): return
+            if(self.name == "" and self.text == ""): text = " "
             elif(self.name == ""): text = self.text 
             elif(self.text == ""): text = self.name 
             else:                  text = self.name + " : " + self.text
@@ -176,21 +176,27 @@ class Game:
         
         
         
-def new_button():
-    new_button = Object("REMOVE", color = (255, 1, 1),  text_color = (0,0,0), size = (.1, .1), pos = (.5, .5),
-                 click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
-    new_button.double_click = get_remove_button("REMOVE")
-    game.objects.append(new_button)
-    pass
-
-def get_remove_button(name):
-    def remove_button():
-        game.remove_object(name)
-    return(remove_button)
-
-
-
+        
+        
+        
+        
 if __name__ == "__main__":
+    
+    def new_button():
+        new_button = Object("REMOVE", color = (255, 1, 1),  text_color = (0,0,0), size = (.1, .1), pos = (.5, .5),
+                     click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
+        new_button.double_click = get_remove_button("REMOVE")
+        game.objects.append(new_button)
+        pass
+    
+    def get_remove_button(name):
+        def remove_button():
+            game.remove_object(name)
+        return(remove_button)
+
+
+
+
     game = Game()
     click = game.add_object("CLICK", color = (255, 1, 1), size = (.1, .1), pos = (.1, .1), text_color = (0,0,0),
                  click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
