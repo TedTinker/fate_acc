@@ -113,7 +113,7 @@ class Thing_Menu(Menu):
         stress_menu = Wide_Tall_Menu(kind = "Stress", new = lambda i : str(i), entries = self.thing.stress)
         stress.double_click = stress_menu.assemble
         
-        conseq_menu = Wide_Tall_Menu(kind = "Consequences", new = lambda i : 2*str(i), entries = self.thing.consequences)
+        conseq_menu = Wide_Tall_Menu(kind = "Consequences", new = lambda i : str(2*i), entries = self.thing.consequences)
         consequences.double_click = conseq_menu.assemble
         
         list_of_rows = [
