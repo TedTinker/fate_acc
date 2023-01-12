@@ -30,10 +30,12 @@ class Object:
     def add_text(self, font = "arial"):
         if(self.text_color == None): return
         else:
-            if(self.name == "" and self.text == ""): text = " "
-            elif(self.name == ""): text = self.text 
-            elif(self.text == ""): text = self.name 
-            else:                  text = self.name + " : " + self.text
+            name_empty = self.name.replace(" ", "") == ""
+            text_empty = self.text.replace(" ", "") == ""
+            if(name_empty and text_empty): text = " "
+            elif(name_empty): text = self.text 
+            elif(text_empty): text = self.name 
+            else:             text = self.name + " : " + self.text
         font = pygame.font.SysFont(font, 1000)
         self.text_box = font.render(text, False, self.text_color)
         

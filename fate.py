@@ -31,10 +31,12 @@ class Tall_Menu(Menu):
         self.assemble()
         
     def update_thing(self):
-        self.entries = [row[0].name + " : " + row[0].text for row in self.saved[1:-2]]
+        self.entries = [row[0].text for row in self.saved[1:-2]]
         return(self.entries)
     
     def update_based_on_thing(self):
+        self.active = [[obj.copy() for obj in row] for row in self.active]
+        self.active = [self.active[0], self.active[-2], self.active[-1]]
         for text in self.entries: self.add_item(text, assemble = False)
         self.save(); self.reset() 
         
@@ -71,6 +73,8 @@ class Wide_Tall_Menu(Menu):
         return(self.entries)
     
     def update_based_on_thing(self):
+        self.active = [[obj.copy() for obj in row] for row in self.active]
+        self.active = [self.active[0], self.active[-2], self.active[-1]]
         for damage, texts in self.entries.items(): 
             self.add_item(texts, assemble = False)
         self.save() ; self.reset()
@@ -117,7 +121,6 @@ class Thing_Menu(Menu):
         super().__init__(self.thing.name + " THING", list_of_rows = list_of_rows, saving = True, resetting = True, save_and_close = True, close_and_reset = True)
         self.submenus = [aspect_menu, stunt_menu, stress_menu, conseq_menu]
         for submenu in self.submenus:
-            submenu.thing = self.thing
             submenu.reset()
         
     def update_thing(self):
@@ -129,7 +132,6 @@ class Thing_Menu(Menu):
         
         self.thing.aspects      = self.submenus[0].update_thing()
         self.thing.stunts       = self.submenus[1].update_thing() 
-        
         self.thing.stress       = self.submenus[2].update_thing() 
         self.thing.consequences = self.submenus[3].update_thing()    
           
@@ -142,6 +144,12 @@ class Thing_Menu(Menu):
         self.saved[1][0].text = self.thing.description 
         for i, obj in enumerate(self.saved[2]):
             self.saved[2][i].text = self.thing.approaches[self.saved[2][i].name]
+        
+        self.submenus[0].entries = self.thing.aspects      ; self.submenus[0].update_based_on_thing()
+        self.submenus[1].entries = self.thing.stunts       ; self.submenus[1].update_based_on_thing()
+        self.submenus[2].entries = self.thing.stress       ; self.submenus[2].update_based_on_thing()
+        self.submenus[3].entries = self.thing.consequences ; self.submenus[3].update_based_on_thing()
+        
         self.reset()
         
         
@@ -157,6 +165,9 @@ class New_Thing_Menu(Thing_Menu):
         self.update_thing()
         game.add_object(self.thing.name, color = (0,0,0), text_color = (255, 255, 255), pos = ("center", "center"), size = (.3, .1), 
                      double_click = Thing_Menu(self.thing).assemble, draggable = True)
+        self.thing = Thing()
+        self.update_based_on_thing()
+        self.saved = self.deep_copy(self.active)
         self.reset()
         if(close): self.close()
         
