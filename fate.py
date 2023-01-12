@@ -42,10 +42,17 @@ class Tall_Menu(Menu):
         
         
         
+def from_dict_or_new(i, d, new = lambda i : str(i)):
+    values = list(d.keys())
+    if(i < len(values)): return(values[i])
+    else:                return(new(i))
+            
+    
+    
 class Wide_Tall_Menu(Menu):
     
-    def __init__(self, kind, values = lambda i : str(i), entries = {}):
-        self.kind = kind ; self.values = values ; self.entries = entries
+    def __init__(self, kind, new = lambda i : str(i), entries = {}):
+        self.kind = kind ; self.new = new ; self.entries = entries
         add_line = Object(kind + " Add " + kind, "Add " + kind,  color = (0, 0, 0), text_color = (255, 255, 255), double_click = self.add_item)
         del_line = Object(kind + " Delete " + kind, "Delete " + kind,  color = (0, 0, 0), text_color = (255, 255, 255), double_click = self.del_item)
         
@@ -57,8 +64,8 @@ class Wide_Tall_Menu(Menu):
         
     def add_item(self, texts = [], assemble = True):
         line = [obj.copy() for obj in self.line]
-        line[0].text = self.values(len(self.active)-3)
-        text = ", ".join(texts)
+        line[0].text = from_dict_or_new(len(self.active)-3, self.entries, self.new)
+        text = ", ".join(texts) # If you want to add more, do it here.
         line[1].text = text
         self.active.insert(-2, line) ; self.to_remove += line
         if(assemble): self.assemble()
@@ -75,13 +82,10 @@ class Wide_Tall_Menu(Menu):
     def update_based_on_thing(self):
         self.active = [[obj.copy() for obj in row] for row in self.active]
         self.active = [self.active[0], self.active[-2], self.active[-1]]
+        self.labels = list(self.entries.keys())
         for damage, texts in self.entries.items(): 
             self.add_item(texts, assemble = False)
         self.save() ; self.reset()
-        
-        
-        
-
         
         
         
@@ -106,10 +110,10 @@ class Thing_Menu(Menu):
         stunt_menu = Tall_Menu(kind = "Stunt", entries = self.thing.stunts)
         stunts.double_click = stunt_menu.assemble
         
-        stress_menu = Wide_Tall_Menu(kind = "Stress", values = lambda i : str(i+1), entries = self.thing.stress)
+        stress_menu = Wide_Tall_Menu(kind = "Stress", new = lambda i : str(i), entries = self.thing.stress)
         stress.double_click = stress_menu.assemble
         
-        conseq_menu = Wide_Tall_Menu(kind = "Consequences", values = lambda i : str(2*(i+1)), entries = self.thing.consequences)
+        conseq_menu = Wide_Tall_Menu(kind = "Consequences", new = lambda i : 2*str(i), entries = self.thing.consequences)
         consequences.double_click = conseq_menu.assemble
         
         list_of_rows = [
