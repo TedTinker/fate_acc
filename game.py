@@ -109,8 +109,15 @@ class Game:
         obj.add_text()
         if(obj.text_box != None):
             x_1, y_1, x_2, y_2 = obj.text_box.get_rect()
-            text_size = (size[0], size[1])
-            text_pos  = (pos[0],  pos[1])
+            x = x_2 - x_1 ; y = y_2 - y_1 ; text_ratio = x / y
+            x_change = size[0] / x ; y_change = size[1] / y ; change = max([x_change, y_change])
+            if(change == x_change): 
+                text_size = (size[1] * text_ratio, size[1]) 
+                text_pos = (pos[0] + size[0]/2 - text_size[0]/2, pos[1])
+            else:                   
+                text_size = (size[0], size[0] / text_ratio) 
+                text_pos = (pos[0], pos[1] + size[1]/2 - text_size[1]/2)
+            # If possible, add /n to make new lines
             text = pygame.transform.scale(obj.text_box, text_size)
             self.screen.blit(text, text_pos)
         
@@ -200,12 +207,12 @@ if __name__ == "__main__":
 
 
     game = Game()
-    click = game.add_object("CLICK", color = (255, 1, 1), size = (.1, .1), pos = (.1, .1), text_color = (0,0,0),
-                 click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
-    drag = game.add_object("DRAG", color = (1, 255, 1), size = (.1, .1), pos = (.2, .2), text_color = (0,0,0),
-                  draggable = True, click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
-    typing = game.add_object("TYPE", color = (1, 1, 255), size = (.5, .1), pos = (.3, .3), text_color = (0,0,0),
+    #click = game.add_object("CLICK", color = (255, 1, 1), size = (.1, .1), pos = (.1, .1), text_color = (0,0,0),
+    #             click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
+    #drag = game.add_object("DRAG", color = (1, 255, 1), size = (.1, .1), pos = (.2, .2), text_color = (0,0,0),
+    #              draggable = True, click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
+    typing = game.add_object("TYPE", color = (1, 1, 255), size = (1, .1), pos = (.3, .3), text_color = (0,0,0),
                   typeable = True, click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
-    new = game.add_object("NEW", color = (255, 1, 255), size = (.1, .1), pos = (.4, .4),  text_color = (0,0,0),
-                  click = lambda: print("CLICKED"), double_click = new_button)
+    #new = game.add_object("NEW", color = (255, 1, 255), size = (.1, .1), pos = (.4, .4),  text_color = (0,0,0),
+    #              click = lambda: print("CLICKED"), double_click = new_button)
     game.run()

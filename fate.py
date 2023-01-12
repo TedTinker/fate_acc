@@ -17,7 +17,7 @@ class Tall_Menu(Menu):
         super().__init__(kind, list_of_rows = [[add_item], [del_item]], resetting = True)
         self.update_based_on_thing()
         
-    def add_item(self, text = "NA", assemble = True):
+    def add_item(self, text = "", assemble = True):
         item = self.item.copy()
         if(len(self.active)-3 < len(self.labels)):
             item.name = self.labels[len(self.active)-3]
