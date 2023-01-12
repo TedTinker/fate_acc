@@ -11,8 +11,8 @@ w, h = pyautogui.size()
 class Object:
     
     def __init__(
-            self, ID, name = None, color = (0,0,0), text_color = None, pos = (0, 0), size = (1, 1), text = "", 
-            typeable = False, draggable = False, click = lambda : None, double_click = lambda : None):
+            self, ID, name = None, color = (0,0,0), text_color = None, pos = (0, 0), size = (1, 1), text = "", typeable = False, draggable = False, 
+            click = lambda : print("CLICKED"), double_click = lambda : print("DOUBLE CLICKED"), right_click = lambda : print("RIGHT CLICKED")):
         
         self.ID = ID ; self.name = name if name != None else ID
         self.color = color ; self.text_color = text_color 
@@ -23,8 +23,8 @@ class Object:
         if(self.pos[1] == "center"): self.pos = (self.pos[0], (1 - self.size[1])/2)
         
         self.text = text ; self.typeable = typeable ; self.text_box = None ; self.add_text()
-        self.draggable = draggable ; self.click = click ; self.double_click = double_click
-        self.clicked_on = False ; self.last_time_clicked = None
+        self.draggable = draggable ; self.click = click ; self.double_click = double_click ; self.right_click = right_click
+        self.clicked_on = False ; self.last_time_clicked = None ; self.right_clicked_on = False
         self.being_dragged = False ; self.being_typed = False
         
     def add_text(self, font = "arial"):
@@ -38,12 +38,6 @@ class Object:
             else:             text = self.name + " : " + self.text
         font = pygame.font.SysFont(font, 1000)
         self.text_box = font.render(text, False, self.text_color)
-        
-    def on_click(self):
-        self.click()
-        
-    def on_double_click(self):
-        self.double_click()
         
     def copy(self):
         obj_copy = Object(
@@ -141,22 +135,34 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for obj in reversed(self.objects):
                         obj.being_typed = False
+                    for obj in reversed(self.objects):
                         if(self.obj_click(obj, pos)):
-                            obj.clicked_on = True
-                            if(obj.typeable): obj.being_typed = True
+                            if(event.button == 1): # Left click
+                                obj.clicked_on = True
+                                if(obj.typeable): obj.being_typed = True
+                            if(event.button == 3): # Right click
+                                obj.right_clicked_on = True
                             break
                     
                 if event.type == pygame.MOUSEBUTTONUP:
-                    for obj in reversed(self.objects):
-                        if(self.obj_click(obj, pos) and not obj.being_dragged):
-                            obj.on_click() ; clicked_this = obj
-                            if(obj.last_time_clicked != None and time() - obj.last_time_clicked <= .5): 
-                                obj.on_double_click()
-                            obj.last_time_clicked = time()
-                            break
-                    for obj in reversed(self.objects): 
-                        obj.clicked_on = False ; obj.being_dragged = False
-                        if(clicked_this != obj): obj.last_time_clicked = None
+                    if(event.button == 1):     
+                        for obj in reversed(self.objects):
+                            if(self.obj_click(obj, pos)):
+                                clicked_this = obj
+                                if(not obj.being_dragged):
+                                    obj.click()
+                                    if(obj.last_time_clicked != None and time() - obj.last_time_clicked <= .5): 
+                                        obj.double_click()
+                                    obj.last_time_clicked = time()
+                                break
+                        for obj in reversed(self.objects): 
+                            obj.clicked_on = False ; obj.being_dragged = False
+                            if(clicked_this != obj): obj.last_time_clicked = None
+                    if(event.button == 3):
+                        for obj in reversed(self.objects):
+                            if(self.obj_click(obj, pos) and not obj.being_dragged):
+                                obj.right_click()
+                                break
                         
                 if event.type == pygame.KEYDOWN:
                     key = event.unicode
@@ -207,12 +213,8 @@ if __name__ == "__main__":
 
 
     game = Game()
-    #click = game.add_object("CLICK", color = (255, 1, 1), size = (.1, .1), pos = (.1, .1), text_color = (0,0,0),
-    #             click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
-    #drag = game.add_object("DRAG", color = (1, 255, 1), size = (.1, .1), pos = (.2, .2), text_color = (0,0,0),
-    #              draggable = True, click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
-    typing = game.add_object("TYPE", color = (1, 1, 255), size = (1, .1), pos = (.3, .3), text_color = (0,0,0),
-                  typeable = True, click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
-    #new = game.add_object("NEW", color = (255, 1, 255), size = (.1, .1), pos = (.4, .4),  text_color = (0,0,0),
-    #              click = lambda: print("CLICKED"), double_click = new_button)
+    click = game.add_object("CLICK", color = (255, 1, 1), size = (.1, .1), pos = (.1, .1), text_color = (0,0,0))
+    drag = game.add_object("DRAG", color = (1, 255, 1), size = (.1, .1), pos = (.2, .2), text_color = (0,0,0), draggable = True)
+    typing = game.add_object("TYPE", color = (1, 1, 255), size = (1, .1), pos = (.3, .3), text_color = (0,0,0), typeable = True)
+    new = game.add_object("NEW", color = (255, 1, 255), size = (.1, .1), pos = (.4, .4),  text_color = (0,0,0), double_click = new_button)
     game.run()
