@@ -190,11 +190,6 @@ class Game:
         
         
         
-        
-        
-        
-        
-        
 if __name__ == "__main__":
     
     def new_button():
@@ -208,9 +203,6 @@ if __name__ == "__main__":
         def remove_button():
             game.remove_object(name)
         return(remove_button)
-
-
-
 
     game = Game()
     click = game.add_object("CLICK", color = (255, 1, 1), size = (.1, .1), pos = (.1, .1), text_color = (0,0,0))
