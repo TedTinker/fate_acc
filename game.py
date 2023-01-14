@@ -36,7 +36,7 @@ class Object:
             elif(name_empty): text = self.text 
             elif(text_empty): text = self.name 
             else:             text = self.name + " : " + self.text
-        font = pygame.font.SysFont(font, 1000)
+        font = pygame.font.SysFont(font, 100)
         self.text_box = font.render(text, False, self.text_color)
         
     def copy(self):

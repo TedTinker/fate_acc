@@ -3,11 +3,11 @@ def New_Approaches(one_to_six = [0,0,0,0,0,0]):
     approaches = {approach_list[i] : str(one_to_six[i]) for i in range(6)}
     return(approaches)
 
-def Damage(damage_list = [], count_list = [], text_list = None):
+def Damage(damage_list = [], text_list = None):
     damage_dict = {}
-    if(text_list == None): text_list = [["" for _ in range(count)] for count in count_list]
-    for damage, count, texts in zip(damage_list, count_list, text_list):
-        damage_dict[str(damage)] = [text for text in texts]
+    if(text_list == None): text_list = ["" for _ in damage_list]
+    for damage, text in zip(damage_list, text_list):
+        damage_dict[str(damage)] = text
     return(damage_dict)
         
 
@@ -20,7 +20,7 @@ class Thing:
     def __init__(
             self, name = "", description = "", fate_points = str(3), refresh = str(3), 
             aspects = ["", "", ""], stunts = [""], approaches = New_Approaches(),  
-            stress = Damage([1, 2, 3], [1, 1, 1]), consequences = Damage([2, 4, 6], [1, 1, 1]),
+            stress = Damage([1, 2, 3]), consequences = Damage([2, 4, 6]),
             load = False):
         
         self.name = name ; self.description = description 
@@ -75,8 +75,8 @@ if __name__ == "__main__":
         aspects = ["An awesome example", "With a problem", "And other stuff"], 
         stunts = ["In this situation, I'm better at this!", "In this other situation, I'm better at this other thing!"], 
         approaches = New_Approaches([1,2,3,4,5,6]), 
-        stress = Damage([1, 2, 3], [1, 2, 1]), 
-        consequences = Damage([2, 4, 6], [1, 2, 1], [[""], ["Broken leg", ""], [""]]), 
+        stress = Damage([1, 2, 3]), 
+        consequences = Damage([2, 4, 6], [[""], ["Broken leg", ""], [""]]), 
         load = False)
     print(example)
     example.save()

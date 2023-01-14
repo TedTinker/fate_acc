@@ -1,6 +1,7 @@
+import string
+
 from game import Object
 from menu import Menu, game
-
 from things import Thing, approach_list
 
 
@@ -45,7 +46,7 @@ class Tall_Menu(Menu):
 def from_dict_or_new(i, d, new = lambda i : str(i)):
     values = list(d.keys())
     if(i < len(values)): return(values[i])
-    else:                return(new(i))
+    else:                return(new(i+1))
             
     
     
@@ -76,11 +77,15 @@ class Wide_Tall_Menu(Menu):
         self.assemble()
         
     def update_thing(self):
-        self.entries = {row[0].text : [row[1].text] for row in self.saved[1:-2]}
+        labels = [row[0].text for row in self.saved[1:-2]]
+        for i, label in enumerate(labels):
+            if(labels.count(label) > 1):
+                alphabet = list(string.ascii_lowercase)
+                labels = [l if l != label else l + alphabet.pop(0) for l in labels]
+        self.entries = {label : [row[1].text] for label, row in zip(labels, self.saved[1:-2])}
         return(self.entries)
     
     def update_based_on_thing(self):
-        self.active = [[obj.copy() for obj in row] for row in self.active]
         self.active = [self.active[0], self.active[-2], self.active[-1]]
         self.labels = list(self.entries.keys())
         for damage, texts in self.entries.items(): 
@@ -91,8 +96,8 @@ class Wide_Tall_Menu(Menu):
         
 class Thing_Menu(Menu):
     
-    def __init__(self, thing = Thing()):
-        self.thing = thing
+    def __init__(self, thing = Thing(), thing_button = None):
+        self.thing = thing ; self.thing_button = thing_button
         name = Object("Name", color = (255, 255, 255), text_color = (0,0,0), typeable = True, text = thing.name)
         description = Object("Description", color = (255, 255, 255), text_color = (0,0,0), typeable = True, text = thing.description)
         fate_points = Object("Fate Points", color = (255, 255, 255), text_color = (0,0,0), typeable = True, text = thing.fate_points)
@@ -156,6 +161,16 @@ class Thing_Menu(Menu):
         
         self.reset()
         
+    def save(self, close = False):
+        for submenu in self.submenus: submenu.save()
+        self.saved = self.deep_copy(self.active)
+        self.update_thing()
+        self.render() # Just for example menu below
+        if(close): self.close()
+        if(self.thing_button != None):
+            print("Changing name")
+            self.thing_button.name = self.thing.name
+        
         
         
 class New_Thing_Menu(Thing_Menu):
@@ -167,8 +182,9 @@ class New_Thing_Menu(Thing_Menu):
         for submenu in self.submenus: submenu.save()
         self.saved = self.deep_copy(self.active)
         self.update_thing()
-        game.add_object(self.thing.name, color = (0,0,0), text_color = (255, 255, 255), pos = ("center", "center"), size = (.3, .1), 
-                     double_click = Thing_Menu(self.thing).assemble, draggable = True)
+        thing_button = game.add_object(self.thing.name, color = (0,0,0), text_color = (255, 255, 255), pos = ("center", "center"), size = (.3, .1), draggable = True)
+        thing_menu = Thing_Menu(self.thing, thing_button)
+        thing_button.double_click = thing_menu.assemble
         self.thing = Thing()
         self.update_based_on_thing()
         self.saved = self.deep_copy(self.active)
@@ -182,8 +198,9 @@ def load_this():
     if(thing.failed): return
     print("\nLoaded:")
     print(thing)
-    thing_button = game.add_object(thing.name, color = (0,0,0), text_color = (255, 255, 255), pos = ("center", "center"), size = (.3, .1), 
-                 double_click = Thing_Menu(thing).assemble, draggable = True)
+    thing_button = game.add_object(thing.name, color = (0,0,0), text_color = (255, 255, 255), pos = ("center", "center"), size = (.3, .1), draggable = True)
+    thing_menu = Thing_Menu(thing, thing_button)
+    thing_button.double_click = thing_menu.assemble
     thing_button.right_click = get_right_click_this(thing_button)
     
     
