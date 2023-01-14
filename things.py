@@ -49,9 +49,16 @@ class Thing:
         self.approaches = {approach_list[i] : str(one_to_six[i]) for i in range(6)}
             
     def save(self):
-        file_path = filedialog.askdirectory()
-        with open('{}/{}.pickle'.format(file_path, self.name), 'wb') as handle: 
-            pickle.dump(self, handle)
+        try:
+            file_path = filedialog.askdirectory()
+            with open('{}/{}.pickle'.format(file_path, self.name), 'wb') as handle: 
+                pickle.dump(self, handle)
+            return(True)
+        except: return(False)
+        
+    def copy(self):
+        return(Thing(self.name, self.description, self.fate_points, self.refresh,
+                     self.aspects, self.stunts, self.approaches, self.stress, self.consequences))
             
     def __str__(self):
         return(

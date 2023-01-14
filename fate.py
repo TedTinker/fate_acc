@@ -133,6 +133,7 @@ class Thing_Menu(Menu):
             submenu.reset()
         
     def update_thing(self):
+        thing_before = self.thing.copy()
         self.thing.name = self.saved[0][0].text
         self.thing.fate_points = self.saved[0][1].text 
         self.thing.refresh = self.saved[0][2].text 
@@ -143,9 +144,13 @@ class Thing_Menu(Menu):
         self.thing.stunts       = self.submenus[1].update_thing() 
         self.thing.stress       = self.submenus[2].update_thing() 
         self.thing.consequences = self.submenus[3].update_thing()    
-          
-        self.thing.save()
         
+        success = self.thing.save()
+        if(not success): 
+            self.thing = thing_before
+            self.update_based_on_thing()
+        return(success)
+            
     def update_based_on_thing(self):
         self.saved[0][0].text = self.thing.name 
         self.saved[0][1].text = self.thing.fate_points 
@@ -164,11 +169,9 @@ class Thing_Menu(Menu):
     def save(self, close = False):
         for submenu in self.submenus: submenu.save()
         self.saved = self.deep_copy(self.active)
-        self.update_thing()
-        self.render() # Just for example menu below
+        success = self.update_thing()
         if(close): self.close()
         if(self.thing_button != None):
-            print("Changing name")
             self.thing_button.name = self.thing.name
         
         
@@ -181,10 +184,11 @@ class New_Thing_Menu(Thing_Menu):
     def save(self, close = False):
         for submenu in self.submenus: submenu.save()
         self.saved = self.deep_copy(self.active)
-        self.update_thing()
-        thing_button = game.add_object(self.thing.name, color = (0,0,0), text_color = (255, 255, 255), pos = ("center", "center"), size = (.3, .1), draggable = True)
-        thing_menu = Thing_Menu(self.thing, thing_button)
-        thing_button.double_click = thing_menu.assemble
+        success = self.update_thing()
+        if(success):
+            thing_button = game.add_object(self.thing.name, color = (0,0,0), text_color = (255, 255, 255), pos = ("center", "center"), size = (.3, .1), draggable = True)
+            thing_menu = Thing_Menu(self.thing, thing_button)
+            thing_button.double_click = thing_menu.assemble
         self.thing = Thing()
         self.update_based_on_thing()
         self.saved = self.deep_copy(self.active)
@@ -196,12 +200,14 @@ class New_Thing_Menu(Thing_Menu):
 def load_this():
     thing = Thing(load = True)
     if(thing.failed): return
-    print("\nLoaded:")
-    print(thing)
-    thing_button = game.add_object(thing.name, color = (0,0,0), text_color = (255, 255, 255), pos = ("center", "center"), size = (.3, .1), draggable = True)
-    thing_menu = Thing_Menu(thing, thing_button)
-    thing_button.double_click = thing_menu.assemble
-    thing_button.right_click = get_right_click_this(thing_button)
+    try:
+        thing_button = game.add_object(thing.name, color = (0,0,0), text_color = (255, 255, 255), pos = ("center", "center"), size = (.3, .1), draggable = True)
+        thing_menu = Thing_Menu(thing, thing_button)
+        thing_button.double_click = thing_menu.assemble
+        thing_button.right_click = get_right_click_this(thing_button)
+        print("\nLoaded:")
+        print(thing)
+    except: pass
     
     
     
