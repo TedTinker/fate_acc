@@ -30,21 +30,20 @@ class Object:
         self.clicked_on = False ; self.last_time_clicked = None ; self.right_clicked_on = False
         self.being_dragged = False ; self.being_typed = False
         
-    def show_text(self, font = "arial"):
+    def get_text(self):
         name_empty = self.name.replace(" ", "") == ""
         text_empty = self.text.replace(" ", "") == ""
         if(name_empty and text_empty): text = " "
         elif(name_empty): text = self.text 
         elif(text_empty): text = self.name 
         else:             text = self.name + " : " + self.text
+        return(text)
+        
+    def show_text(self, font = "arial"):
+        text = self.get_text()
         font = pygame.font.SysFont(font, 100)
         self.text_box = font.render(text, True, self.text_color)
         self.text_box.set_alpha(self.alpha)
-        
-    def where_in_text(self, pos):
-        if(not self.typeable): return 
-        text_size = self.text_box.get_size()
-        y = self.pos[1]        
         
     def copy(self):
         obj_copy = Object(
@@ -103,6 +102,30 @@ class Game:
                 return(True)
         return(False)
     
+    def where_in_text(self, obj, pos):
+        if(not obj.typeable): return 
+        text = obj.get_text()
+        text_pos, text_size = self.get_text_pos_size(obj)
+        print("Clicked:", pos[0], "Pos:", text_pos[0], "Size:", text_size[0])
+        obj.curser_pos = int(len(text) * (pos[0] - text_pos[0]) / text_size[0])
+        print(len(text), len(obj.text))
+        obj.curser_pos -= len(text) - len(obj.text)
+        print("CURSER:", obj.curser_pos)
+        
+    def get_text_pos_size(self, obj):
+        size = self.obj_size(obj) ; pos = self.obj_pos(obj)
+        x_1, y_1, x_2, y_2 = obj.text_box.get_rect()
+        x = x_2 - x_1 ; y = y_2 - y_1 ; text_ratio = x / y
+        x_change = size[0] / x ; y_change = size[1] / y ; change = max([x_change, y_change])
+        if(change == x_change): 
+            text_size = (size[1] * text_ratio, size[1]) 
+            text_pos = (pos[0] + size[0]/2 - text_size[0]/2, pos[1])
+        else:                   
+            text_size = (size[0], size[0] / text_ratio) 
+            text_pos = (pos[0], pos[1] + size[1]/2 - text_size[1]/2)
+            # If possible, add /n to make new lines
+        return(text_pos, text_size)
+        
     def render(self, obj):
         size = self.obj_size(obj) ; pos = self.obj_pos(obj)
         obj.color = obj.color[:3] + (int(obj.alpha),)
@@ -111,16 +134,7 @@ class Game:
         self.screen.blit(OBJ, pos)
         obj.show_text()
         if(obj.text_box != None):
-            x_1, y_1, x_2, y_2 = obj.text_box.get_rect()
-            x = x_2 - x_1 ; y = y_2 - y_1 ; text_ratio = x / y
-            x_change = size[0] / x ; y_change = size[1] / y ; change = max([x_change, y_change])
-            if(change == x_change): 
-                text_size = (size[1] * text_ratio, size[1]) 
-                text_pos = (pos[0] + size[0]/2 - text_size[0]/2, pos[1])
-            else:                   
-                text_size = (size[0], size[0] / text_ratio) 
-                text_pos = (pos[0], pos[1] + size[1]/2 - text_size[1]/2)
-                # If possible, add /n to make new lines
+            text_pos, text_size = self.get_text_pos_size(obj)
             text = pygame.transform.scale(obj.text_box, text_size)
             self.screen.blit(text, text_pos)
         
@@ -160,7 +174,7 @@ class Game:
                                 obj.clicked_on = True
                                 if(obj.typeable): 
                                     obj.being_typed = True
-                                    obj.where_in_text(pos)
+                                    self.where_in_text(obj, pos)
                             if(event.button == 3): # Right click
                                 obj.right_clicked_on = True
                             break
@@ -192,9 +206,11 @@ class Game:
                             if(event.key == pygame.K_RETURN): 
                                 obj.being_typed = False ; break
                             if(event.key == pygame.K_BACKSPACE):
-                                obj.text = obj.text[:-1]
+                                obj.text = obj.text[:obj.curser_pos-1] + obj.text[obj.curser_pos:]
+                                obj.curser_pos -= 1
                             else:
-                                obj.text += key
+                                obj.text = obj.text[:obj.curser_pos] + key + obj.text[obj.curser_pos:]
+                                obj.curser_pos += 1
                             break
                 
             for obj in reversed(self.objects):
