@@ -32,11 +32,14 @@ class Object:
         
     def get_text(self):
         name_empty = self.name.replace(" ", "") == ""
-        text_empty = self.text.replace(" ", "") == ""
+        text_empty = self.text == ""
+        if(self.curser_pos != None):
+            self_text = self.text[:self.curser_pos] + "|" + self.text[self.curser_pos:]
+        else: self_text = self.text
         if(name_empty and text_empty): text = " "
-        elif(name_empty): text = self.text 
-        elif(text_empty): text = self.name 
-        else:             text = self.name + " : " + self.text
+        elif(name_empty): text = self_text 
+        elif(text_empty and self.curser_pos == None): text = self.name 
+        else:             text = self.name + " : " + self_text
         return(text)
         
     def show_text(self, font = "arial"):
@@ -106,11 +109,12 @@ class Game:
         if(not obj.typeable): return 
         text = obj.get_text()
         text_pos, text_size = self.get_text_pos_size(obj)
-        print("Clicked:", pos[0], "Pos:", text_pos[0], "Size:", text_size[0])
-        obj.curser_pos = int(len(text) * (pos[0] - text_pos[0]) / text_size[0])
-        print(len(text), len(obj.text))
-        obj.curser_pos -= len(text) - len(obj.text)
-        print("CURSER:", obj.curser_pos)
+        curser_pos = obj.curser_pos
+        curser_pos = int(len(text) * (pos[0] - text_pos[0]) / text_size[0])
+        curser_pos -= len(text) - len(obj.text) - 1
+        if(curser_pos < 0):             curser_pos = 0 
+        if(curser_pos > len(obj.text)): curser_pos = len(obj.text)
+        obj.curser_pos = curser_pos
         
     def get_text_pos_size(self, obj):
         size = self.obj_size(obj) ; pos = self.obj_pos(obj)
@@ -167,7 +171,7 @@ class Game:
                 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for obj in reversed(self.objects):
-                        obj.being_typed = False
+                        obj.being_typed = False ; obj.curser_pos = None
                     for obj in reversed(self.objects):
                         if(self.obj_click(obj, pos)):
                             if(event.button == 1): # Left click
@@ -204,7 +208,7 @@ class Game:
                     for obj in reversed(self.objects):
                         if(obj.being_typed):
                             if(event.key == pygame.K_RETURN): 
-                                obj.being_typed = False ; break
+                                obj.being_typed = False ; obj.curser_pos = None ; break
                             if(event.key == pygame.K_BACKSPACE):
                                 obj.text = obj.text[:obj.curser_pos-1] + obj.text[obj.curser_pos:]
                                 obj.curser_pos -= 1
