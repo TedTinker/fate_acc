@@ -11,33 +11,35 @@ w, h = pyautogui.size()
 class Object:
     
     def __init__(
-            self, ID, name = None, color = (0,0,0), text_color = None, pos = (0, 0), size = (1, 1), text = "", typeable = False, draggable = False, 
-            constant = None, click = lambda : print("CLICKED"), double_click = lambda : print("DOUBLE CLICKED"), right_click = lambda : print("RIGHT CLICKED")):
+            self, ID, name = None, color = (0,0,0), alpha = 255, text_color = None, pos = (0, 0), size = (1, 1), text = "", 
+            fade_time = None, typeable = False, draggable = False, 
+            constant = None, click = lambda : print("CLICKED"), 
+            double_click = lambda : print("DOUBLE CLICKED"), right_click = lambda : print("RIGHT CLICKED")):
         
         self.ID = ID ; self.name = name if name != None else ID
-        self.color = color ; self.text_color = text_color 
-        self.obj = pygame.Surface((1,1)) ; self.obj.fill(self.color)
+        self.color = color ; self.alpha = alpha ; self.text_color = text_color if text_color != None else color
+        self.obj = pygame.Surface((1,1), pygame.SRCALPHA) ; self.obj.fill(self.color)
         
         self.pos = pos ; self.size = size
         if(self.pos[0] == "center"): self.pos = ((w/h - self.size[0])/2, self.pos[1])
         if(self.pos[1] == "center"): self.pos = (self.pos[0], (1 - self.size[1])/2)
         
-        self.text = text ; self.typeable = typeable ; self.text_box = None ; self.add_text() ; self.draggable = draggable
+        self.text = text ; self.fade_time = fade_time ; self.fade_start = None
+        self.typeable = typeable ; self.text_box = None ; self.add_text() ; self.draggable = draggable
         self.constant = constant; self.click = click ; self.double_click = double_click ; self.right_click = right_click
         self.clicked_on = False ; self.last_time_clicked = None ; self.right_clicked_on = False
         self.being_dragged = False ; self.being_typed = False
         
     def add_text(self, font = "arial"):
-        if(self.text_color == None): return
-        else:
-            name_empty = self.name.replace(" ", "") == ""
-            text_empty = self.text.replace(" ", "") == ""
-            if(name_empty and text_empty): text = " "
-            elif(name_empty): text = self.text 
-            elif(text_empty): text = self.name 
-            else:             text = self.name + " : " + self.text
+        name_empty = self.name.replace(" ", "") == ""
+        text_empty = self.text.replace(" ", "") == ""
+        if(name_empty and text_empty): text = " "
+        elif(name_empty): text = self.text 
+        elif(text_empty): text = self.name 
+        else:             text = self.name + " : " + self.text
         font = pygame.font.SysFont(font, 100)
-        self.text_box = font.render(text, False, self.text_color)
+        self.text_box = font.render(text, True, self.text_color)
+        self.text_box.set_alpha(self.alpha)
         
     def copy(self):
         obj_copy = Object(
@@ -98,6 +100,8 @@ class Game:
     
     def render(self, obj):
         size = self.obj_size(obj) ; pos = self.obj_pos(obj)
+        obj.color = obj.color[:3] + (int(obj.alpha),)
+        obj.obj.set_alpha(obj.alpha)
         OBJ = pygame.transform.scale(obj.obj, size)
         self.screen.blit(OBJ, pos)
         obj.add_text()
@@ -123,6 +127,13 @@ class Game:
             for obj in reversed(self.objects):
                 if(obj.constant != None):
                     obj.constant()
+                if(obj.fade_time != None):
+                    if(obj.fade_start == None): obj.fade_start = time()
+                    time_fading = time() - obj.fade_start
+                    alpha = 255 * (1 - (time_fading / obj.fade_time))
+                    obj.alpha = alpha
+                    if(time_fading >= obj.fade_time):
+                        self.remove_object(obj.ID)
             
             for obj in self.objects: 
                 self.render(obj)
@@ -196,11 +207,10 @@ class Game:
 if __name__ == "__main__":
     
     def new_button():
-        new_button = Object("REMOVE", color = (255, 1, 1),  text_color = (0,0,0), size = (.1, .1), pos = (.5, .5),
+        new_button = Object("FADING", color = (255, 1, 1), alpha = 100, fade_time = 1, text_color = (0,0,0), size = (.1, .1), pos = (.5, .5),
                      click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
         new_button.double_click = get_remove_button("REMOVE")
         game.objects.append(new_button)
-        pass
     
     def get_remove_button(name):
         def remove_button():
