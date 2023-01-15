@@ -24,13 +24,13 @@ class Object:
         if(self.pos[0] == "center"): self.pos = ((w/h - self.size[0])/2, self.pos[1])
         if(self.pos[1] == "center"): self.pos = (self.pos[0], (1 - self.size[1])/2)
         
-        self.text = text ; self.fade_time = fade_time ; self.fade_start = None
-        self.typeable = typeable ; self.text_box = None ; self.add_text() ; self.draggable = draggable
+        self.text = text ; self.curser_pos = None ; self.fade_time = fade_time ; self.fade_start = None
+        self.typeable = typeable ; self.text_box = None ; self.show_text() ; self.draggable = draggable
         self.constant = constant; self.click = click ; self.double_click = double_click ; self.right_click = right_click
         self.clicked_on = False ; self.last_time_clicked = None ; self.right_clicked_on = False
         self.being_dragged = False ; self.being_typed = False
         
-    def add_text(self, font = "arial"):
+    def show_text(self, font = "arial"):
         name_empty = self.name.replace(" ", "") == ""
         text_empty = self.text.replace(" ", "") == ""
         if(name_empty and text_empty): text = " "
@@ -40,6 +40,11 @@ class Object:
         font = pygame.font.SysFont(font, 100)
         self.text_box = font.render(text, True, self.text_color)
         self.text_box.set_alpha(self.alpha)
+        
+    def where_in_text(self, pos):
+        if(not self.typeable): return 
+        text_size = self.text_box.get_size()
+        y = self.pos[1]        
         
     def copy(self):
         obj_copy = Object(
@@ -104,7 +109,7 @@ class Game:
         obj.obj.set_alpha(obj.alpha)
         OBJ = pygame.transform.scale(obj.obj, size)
         self.screen.blit(OBJ, pos)
-        obj.add_text()
+        obj.show_text()
         if(obj.text_box != None):
             x_1, y_1, x_2, y_2 = obj.text_box.get_rect()
             x = x_2 - x_1 ; y = y_2 - y_1 ; text_ratio = x / y
@@ -115,7 +120,7 @@ class Game:
             else:                   
                 text_size = (size[0], size[0] / text_ratio) 
                 text_pos = (pos[0], pos[1] + size[1]/2 - text_size[1]/2)
-            # If possible, add /n to make new lines
+                # If possible, add /n to make new lines
             text = pygame.transform.scale(obj.text_box, text_size)
             self.screen.blit(text, text_pos)
         
@@ -153,7 +158,9 @@ class Game:
                         if(self.obj_click(obj, pos)):
                             if(event.button == 1): # Left click
                                 obj.clicked_on = True
-                                if(obj.typeable): obj.being_typed = True
+                                if(obj.typeable): 
+                                    obj.being_typed = True
+                                    obj.where_in_text(pos)
                             if(event.button == 3): # Right click
                                 obj.right_clicked_on = True
                             break
@@ -207,7 +214,7 @@ class Game:
 if __name__ == "__main__":
     
     def new_button():
-        new_button = Object("FADING", color = (255, 1, 1), alpha = 100, fade_time = 1, text_color = (0,0,0), size = (.1, .1), pos = (.5, .5),
+        new_button = Object("FADING", color = (255, 1, 1), alpha = 100, fade_time = 2, text_color = (0,0,0), size = (.1, .1), pos = (.5, .5),
                      click = lambda: print("CLICKED"), double_click = lambda: print("DOUBLE CLICKED"))
         new_button.double_click = get_remove_button("REMOVE")
         game.objects.append(new_button)
@@ -218,8 +225,6 @@ if __name__ == "__main__":
         return(remove_button)
 
     game = Game()
-    click = game.add_object("CLICK", color = (255, 1, 1), size = (.1, .1), pos = (.1, .1), text_color = (0,0,0))
-    drag = game.add_object("DRAG", color = (1, 255, 1), size = (.1, .1), pos = (.2, .2), text_color = (0,0,0), draggable = True)
-    typing = game.add_object("TYPE", color = (1, 1, 255), size = (1, .1), pos = (.3, .3), text_color = (0,0,0), typeable = True)
+    typing = game.add_object("TYPE", color = (1, 1, 255), size = (1, .1), pos = (.3, .3), text_color = (0,0,0), typeable = True, draggable = True)
     new = game.add_object("NEW", color = (255, 1, 255), size = (.1, .1), pos = (.4, .4),  text_color = (0,0,0), double_click = new_button)
     game.run()

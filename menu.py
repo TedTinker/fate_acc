@@ -1,13 +1,21 @@
+from itertools import groupby
+
+def all_equal(iterable):
+    g = groupby(iterable)
+    return next(g, True) and not next(g, False)
+
+
+
 from game import Game, Object, w, h
 
 game = Game()
 
-    
+
 
 class Menu:
     
     def __init__(
-            self, ID, list_of_rows = [], bg_color = (50, 50, 50), space_between = .05, 
+            self, ID, list_of_rows = [], widths = [], bg_color = (50, 50, 50), space_between = .05, 
             saving = False, resetting = False, save_and_close = False, close_and_reset = False):
         
         self.ID = ID
@@ -26,6 +34,13 @@ class Menu:
         for row in list_of_rows:
             for obj in row:  obj.ID = self.ID + " " + obj.ID
                     
+        while(len(widths) < len(list_of_rows)):
+            widths.append([])
+        for i, row in enumerate(widths):
+            while len(widths[i]) != len(list_of_rows[i]):
+                widths[i].append(1)
+        self.widths = widths
+            
         self.active    = self.deep_copy(list_of_rows)
         self.saved     = self.deep_copy(list_of_rows)
         self.to_remove = []
@@ -41,23 +56,26 @@ class Menu:
     def deep_copy(self, list_of_rows):
         return([[obj.copy() for obj in row] for row in list_of_rows])
         
-    def pos_size(self, x = None, y = None, len_row = "bg"):
-        if(len_row == "bg"):
+    def pos_size(self, x = None, y = None, width = "bg", last_x_pos = (0, 0)):
+        if(width == "bg"):
             pos = (self.x_start, self.y_start)
             size = (self.x_end - self.x_start, self.y_end - self.y_start)
             return(pos, size)
-        y_dif = (self.y_end - self.y_start - self.space_between) / len(self.active)
-        x_dif = (self.x_end - self.x_start - self.space_between) / len_row
-        pos = (self.x_start + x * x_dif + self.space_between, self.y_start + y * y_dif + self.space_between)
-        size = (x_dif - self.space_between, y_dif - self.space_between)
+        y_size = (self.y_end - self.y_start - self.space_between) / len(self.active)
+        x_size = (self.x_end - self.x_start - self.space_between) * width
+        pos = (self.x_start + last_x_pos, self.y_start + y * y_size + self.space_between)
+        size = (x_size - self.space_between, y_size - self.space_between)
         return(pos, size)
         
     def assemble(self):  
         self.close()
         game.objects.append(self.bg)
         for y, row in enumerate(self.active):
+            widths = [width / sum(self.widths[y]) for width in self.widths[y]]
+            last_x_pos = self.space_between
             for x, obj in enumerate(row):
-                obj.pos, obj.size = self.pos_size(x, y, len(row))
+                obj.pos, obj.size = self.pos_size(x, y, widths[x], last_x_pos)
+                last_x_pos = obj.pos[0] + obj.size[0]
                 game.objects.append(obj); self.to_remove.append(obj)
                 
     def close(self, reset = False):
@@ -106,13 +124,13 @@ if __name__ == "__main__":
         b = box.copy()
         b.ID += str(len(menu.active[0])-1)
         b.text = b.ID
-        menu.active[0].insert(-1, b) ; menu.to_remove.append(b)
+        menu.active[0].insert(-1, b) ; menu.to_remove.append(b) ; menu.widths[0].insert(-1, 1)
         menu.assemble()
         render()
         
     def del_box():
         if(len(menu.active[0]) == 2): return
-        menu.active[0].pop(-2)
+        menu.active[0].pop(-2) ; menu.widths[0].pop(-2)
         menu.assemble()
         render()
     
@@ -128,6 +146,7 @@ if __name__ == "__main__":
         menu.assemble
     
     menu = Menu("TEST MENU", list_of_rows = [[more, less], [active, saved]], 
+                widths = [[1,2]],
                 saving = True, resetting = True)
     
     menu.render = render
