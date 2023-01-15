@@ -12,7 +12,7 @@ class Tall_Menu(Menu):
         
         self.item = Object(kind, "", color = (255, 255, 255), text_color = (0,0,0), typeable = True, text = "")
         
-        super().__init__(kind, list_of_rows = [[add_item], [del_item]], resetting = True)
+        super().__init__(kind, list_of_rows = [[add_item], [del_item]], widths = [], resetting = True)
         self.update_based_on_thing()
         
     def add_item(self, text = "", assemble = True):
@@ -20,12 +20,12 @@ class Tall_Menu(Menu):
         if(len(self.active)-3 < len(self.labels)):
             item.name = self.labels[len(self.active)-3]
         item.text = text
-        self.active.insert(-2, [item]) ; self.to_remove.append(item)
+        self.active.insert(-2, [item]) ; self.to_remove.append(item) ; self.widths.insert(-2, [1])
         if(assemble): self.assemble()
         
     def del_item(self):
         if(len(self.active) == 3): return
-        self.active.pop(-3)
+        self.active.pop(-3) ; self.widths.pop(-3)
         self.assemble()
         
     def update_thing(self):
@@ -57,7 +57,7 @@ class Wide_Tall_Menu(Menu):
         item = Object(kind, "", color = (255, 255, 255), text_color = (0,0,0), typeable = True, text = "")
         self.line = [item, item.copy()]
         
-        super().__init__(kind, list_of_rows = [[add_line], [del_line]], resetting = True)
+        super().__init__(kind, list_of_rows = [[add_line], [del_line]], widths = [], resetting = True)
         self.update_based_on_thing()
         
     def add_item(self, texts = [], assemble = True):
@@ -65,12 +65,12 @@ class Wide_Tall_Menu(Menu):
         line[0].text = from_dict_or_new(len(self.active)-3, self.entries, self.new)
         text = ", ".join(texts) # If you want to add more, do it here.
         line[1].text = text
-        self.active.insert(-2, line) ; self.to_remove += line
+        self.active.insert(-2, line) ; self.to_remove += line ; self.widths.insert(-2, [1, 10])
         if(assemble): self.assemble()
         
     def del_item(self):
         if(len(self.active) == 3): return
-        self.active.pop(-3)
+        self.active.pop(-3) ; self.widths.pop(-3)
         self.assemble()
         
     def update_thing(self):

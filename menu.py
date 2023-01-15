@@ -1,4 +1,5 @@
 from itertools import groupby
+from copy import deepcopy
 
 def all_equal(iterable):
     g = groupby(iterable)
@@ -33,17 +34,18 @@ class Menu:
         
         for row in list_of_rows:
             for obj in row:  obj.ID = self.ID + " " + obj.ID
-                    
-        while(len(widths) < len(list_of_rows)):
-            widths.append([])
-        for i, row in enumerate(widths):
-            while len(widths[i]) != len(list_of_rows[i]):
-                widths[i].append(1)
-        self.widths = widths
             
         self.active    = self.deep_copy(list_of_rows)
         self.saved     = self.deep_copy(list_of_rows)
         self.to_remove = []
+        
+        while(len(widths) < len(list_of_rows)): widths.append([])
+        for y, row in enumerate(widths):
+            while(len(widths[y]) != len(list_of_rows[y])):
+                widths[y].append(1)
+                
+        self.widths = widths
+        self.saved_widths = deepcopy(widths)
         
         self.bg = Object(self.ID + " bg", color = bg_color)
         self.space_between = space_between
@@ -87,12 +89,14 @@ class Menu:
     def save(self, close = False):
         for submenu in self.submenus: submenu.save()
         self.saved = self.deep_copy(self.active)
+        self.saved_widths = deepcopy(self.widths)
         self.update_thing()
         self.render() # Just for example menu below
         if(close): self.close()
         
     def reset(self, assemble = False):
         self.active = self.deep_copy(self.saved)
+        self.widths = deepcopy(self.saved_widths)
         self.render()
         if(assemble == True): self.assemble()
         for submenu in self.submenus: submenu.reset()
@@ -146,7 +150,7 @@ if __name__ == "__main__":
         menu.assemble
     
     menu = Menu("TEST MENU", list_of_rows = [[more, less], [active, saved]], 
-                widths = [[1,2]],
+                widths = [[1,2], [2,1], [1,4]],
                 saving = True, resetting = True)
     
     menu.render = render

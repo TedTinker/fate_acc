@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from game import Object
 from menu import Menu, game
 from things import Thing, approach_list
@@ -79,6 +81,7 @@ class Thing_Menu(Menu):
     def save(self, close = False):
         for submenu in self.submenus: submenu.save()
         self.saved = self.deep_copy(self.active)
+        self.saved_widths = deepcopy(self.widths)
         self.update_thing()
         if(close): self.close()
         if(self.thing_button != None):
@@ -94,6 +97,7 @@ class New_Thing_Menu(Thing_Menu):
     def save(self, close = False):
         for submenu in self.submenus: submenu.save()
         self.saved = self.deep_copy(self.active)
+        self.saved_widths = deepcopy(self.widths)
         success = self.update_thing()
         if(success):
             thing_button = game.add_object(self.thing.name, color = (0,0,0), text_color = (255, 255, 255), pos = ("center", "center"), size = (.3, .1), draggable = True)
@@ -103,6 +107,7 @@ class New_Thing_Menu(Thing_Menu):
         self.thing = Thing()
         self.update_based_on_thing()
         self.saved = self.deep_copy(self.active)
+        self.saved_widths = deepcopy(self.widths)
         self.reset()
         if(close): self.close()
         
