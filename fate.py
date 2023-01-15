@@ -1,6 +1,6 @@
 from menu import game
 from things import Thing
-from thing_menu import Thing_Menu, New_Thing_Menu
+from thing_menu import Thing_Menu, New_Thing_Menu, get_right_click_this
 
 
                 
@@ -15,27 +15,6 @@ def load_this():
         print("\nLoaded:")
         print(thing)
     except: pass
-    
-    
-    
-def get_right_click_this(obj):
-    
-    def right_click_this():
-        positions = [(obj.pos[0] + obj.size[0], obj.pos[1] + obj.size[1] + .11*y) for y in range(3)]
-        done = game.add_object("DONE", color = (200,200,200), text_color = (0, 0, 0), pos = positions[0], size = (.5, .1))
-        remove = game.add_object("REMOVE {}".format(obj.name), color = (50,50,50), text_color = (0, 0, 0), pos = positions[1], size = (.5, .1))
-        
-        buttons = [done, remove]
-        
-        def get_remove_these_and(then = lambda : None):
-            def remove_these_and():
-                for obj in buttons: game.remove_object(obj.ID)
-                then()
-            return(remove_these_and)
-        
-        remove.double_click = get_remove_these_and(lambda : game.remove_object(obj.ID)) # game.remove_object(obj.ID)
-        done.double_click = get_remove_these_and()
-    return(right_click_this)
 
 
     
