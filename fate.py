@@ -24,9 +24,9 @@ def roll():
     for i in range(4):
         die_val = randint(-1,1)
         dice.append(game.add_object("die_{}".format(i+1), name = "", text = "{}".format("+" if die_val == 1 else "-" if die_val == -1 else ""), 
-                                    color = (0,0,0), text_color = (255, 255, 255), pos = (.01 + .11*(i+1), 1 - .11), size = (.1, .1)))
-    dice.append(game.add_object("PLUS", color = (0,0,0), text_color = (255, 255, 255), pos = (.57, 1 - .11), size = (.2, .1), text = "0", typeable = True))
-    dice.append(game.add_object("EQUAL", "", color = (0,0,0), text_color = (255, 255, 255), pos = (.79, 1 - .11), size = (.2, .1)))
+                                    color = (0,255,0), text_color = (0, 0, 0), pos = (.01 + .11*(i+1), 1 - .11), size = (.1, .1)))
+    dice.append(game.add_object("PLUS", color = (255,255,255), text_color = (0, 0, 0), pos = (.56, 1 - .11), size = (.2, .1), text = "0", typeable = True))
+    dice.append(game.add_object("EQUAL", "", color = (0,0,255), text_color = (255, 255, 255), pos = (.77, 1 - .11), size = (.2, .1)))
     dice.append(game.add_object("STOP", color = (0,0,0), text_color = (255, 255, 255), pos = (.01, 1 - .11), size = (.1, .1)))
     
     def remove_dice():
@@ -45,8 +45,6 @@ def roll():
     dice[-2].constant = sum_dice
     dice[-1].double_click = remove_dice
                  
-    pass
-
 
     
 new = game.add_object("NEW", color = (0,0,0), text_color = (255, 255, 255), pos = (.01, .01), size = (.1, .1), 
