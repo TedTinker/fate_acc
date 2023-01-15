@@ -16,7 +16,7 @@ game = Game()
 class Menu:
     
     def __init__(
-            self, ID, list_of_rows = [], widths = [], bg_color = (50, 50, 50), space_between = .05, 
+            self, ID, list_of_rows = [], widths = [], bg_color = (50, 50, 50), space_between = .02, 
             saving = False, resetting = False, save_and_close = False, close_and_reset = False):
         
         self.ID = ID

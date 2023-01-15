@@ -209,9 +209,13 @@ class Game:
                         if(obj.being_typed):
                             if(event.key == pygame.K_RETURN): 
                                 obj.being_typed = False ; obj.curser_pos = None ; break
-                            if(event.key == pygame.K_BACKSPACE):
+                            elif(event.key == pygame.K_BACKSPACE):
                                 obj.text = obj.text[:obj.curser_pos-1] + obj.text[obj.curser_pos:]
                                 obj.curser_pos -= 1
+                            elif(event.key == pygame.K_LEFT):
+                                if(obj.curser_pos != 0): obj.curser_pos -= 1 
+                            elif(event.key == pygame.K_RIGHT):
+                                if(obj.curser_pos < len(obj.text)): obj.curser_pos += 1 
                             else:
                                 obj.text = obj.text[:obj.curser_pos] + key + obj.text[obj.curser_pos:]
                                 obj.curser_pos += 1
