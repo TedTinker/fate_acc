@@ -12,7 +12,7 @@ class Object:
     
     def __init__(
             self, ID, name = None, color = (0,0,0), text_color = None, pos = (0, 0), size = (1, 1), text = "", typeable = False, draggable = False, 
-            click = lambda : print("CLICKED"), double_click = lambda : print("DOUBLE CLICKED"), right_click = lambda : print("RIGHT CLICKED")):
+            constant = None, click = lambda : print("CLICKED"), double_click = lambda : print("DOUBLE CLICKED"), right_click = lambda : print("RIGHT CLICKED")):
         
         self.ID = ID ; self.name = name if name != None else ID
         self.color = color ; self.text_color = text_color 
@@ -22,8 +22,8 @@ class Object:
         if(self.pos[0] == "center"): self.pos = ((w/h - self.size[0])/2, self.pos[1])
         if(self.pos[1] == "center"): self.pos = (self.pos[0], (1 - self.size[1])/2)
         
-        self.text = text ; self.typeable = typeable ; self.text_box = None ; self.add_text()
-        self.draggable = draggable ; self.click = click ; self.double_click = double_click ; self.right_click = right_click
+        self.text = text ; self.typeable = typeable ; self.text_box = None ; self.add_text() ; self.draggable = draggable
+        self.constant = constant; self.click = click ; self.double_click = double_click ; self.right_click = right_click
         self.clicked_on = False ; self.last_time_clicked = None ; self.right_clicked_on = False
         self.being_dragged = False ; self.being_typed = False
         
@@ -120,6 +120,9 @@ class Game:
         old_pos = pygame.mouse.get_pos()
         while running:
             frames += 1 ; pos = pygame.mouse.get_pos()
+            for obj in reversed(self.objects):
+                if(obj.constant != None):
+                    obj.constant()
             
             for obj in self.objects: 
                 self.render(obj)
