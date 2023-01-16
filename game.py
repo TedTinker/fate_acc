@@ -6,6 +6,8 @@ from time import time
 import pyautogui
 w, h = pyautogui.size()
 
+w, h = (1920, 1080)
+
 
 
 class Object:
