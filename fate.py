@@ -1,3 +1,4 @@
+#%%
 from random import randint
 
 from game import w, h
@@ -55,3 +56,4 @@ roll = game.add_object("ROLL", color = (0,0,0), text_color = (255, 255, 255), po
              double_click = roll)
 
 game.run()
+# %%

@@ -66,11 +66,21 @@ class Game:
         pygame.init()
         self.paras = {"size" : size} 
         self.objects = [] 
-        self.bg = self.add_object("bg", "bg", color = (255, 255, 255), size = (w/h, 1), pos = (0, 0))
+        self.bg = self.add_object("bg", color = (255, 255, 255), size = (w/h, 1), pos = (0, 0))
         self.screen = pygame.display.set_mode(self.paras["size"], RESIZABLE)
         
     def add_object(self, *args, **kwargs):
         obj = Object(*args, **kwargs)
+        if(self.objects == []): pass
+        else:
+            unique_ID = False 
+            while(unique_ID == False):
+                unique_ID = True
+                for object in self.objects:
+                    if(object.ID == obj.ID):
+                        obj.ID += " 2"
+                        unique_ID = False
+                
         self.objects.append(obj)
         return(obj)
     
