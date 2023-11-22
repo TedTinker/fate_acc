@@ -1,45 +1,43 @@
+#%% 
 import os
 
-from entity import Entity, Obstacle, Zone
+from utils import align_colons
+from entity import Agent, Obstacle, Zone
 
 class Fate_Env:
     
     def __init__(self):
-        self.entities = []
+        self.agents = []
         self.obstacles = []
         self.zones = []
         
         for file in os.listdir("entities"):
-            with open("entities/" + file) as f:
-                lines = f.readlines()
-                if(lines[-1].strip() == "autoload"):
-                    name    = ":".join(lines[0].split(":")[1:]).strip()
-                    player  = ":".join(lines[1].split(":")[1:]).strip()
-                    self.entities.append(Entity(load = True, name = name, player = player))
-                    
-        for file in os.listdir("obstacles"):
-            with open("obstacles/" + file) as f:
-                lines = f.readlines()
-                if(lines[-1].strip() == "autoload"):
-                    name    = lines[0].strip()
-                    self.obstacles.append(Obstacle(load = True, name = name))
-        
-        for file in os.listdir("zones"):
-            with open("zones/" + file) as f:
-                lines = f.readlines()
-                if(lines[-1].strip() == "autoload"):
-                    name    = lines[0].strip()
-                    self.zones.append(Zone(load = True, name = name))
+            if(file.endswith("(autoload).txt")):
+                with open("entities/" + file) as f:
+                    file = file.replace("(autoload)", "")[:-4]
+                    words = file.split()
+                    entity_type = words[0].strip()
+                    name = ' '.join(word for word in words[1:]).strip()
+                    if(entity_type == "agent"):
+                        agent = Agent(name = name)
+                        agent.load()
+                        self.agents.append(agent)
+                    if(entity_type == "obstacle"):
+                        obstacle = Obstacle(name = name)
+                        obstacle.load()
+                        self.obstacles.append(obstacle)
+                    if(entity_type == "zone"):
+                        zone = Zone(name = name)
+                        zone.load()
+                        self.zones.append(zone)
                             
     def __str__(self):
-        to_return = "Entities:"
-        for entity in self.entities:
-            to_return += "\n\t" + entity.name
+        to_return = "Agents:"
+        to_return += align_colons([agent.name for agent in self.agents])
+        to_return += "\nObstacles:"
+        to_return += align_colons([obstacle.name for obstacle in self.obstacles])
         to_return += "\nZones:"
-        for zone in self.zones:
-            to_return += "\n\t" + zone.name
-            for entity_name in zone.entity_names:
-                to_return += "\n\t\t" + entity_name
+        to_return += align_colons([zone.name for zone in self.zones])
         return(to_return)
                 
 

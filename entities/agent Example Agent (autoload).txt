@@ -1,0 +1,31 @@
+Agent : Example Agent
+Player : GM
+Description : An character in a Fate: Accelerated game
+Fate Points : 3
+Refresh : 10
+Approaches : 
+	Careful  : 0
+	Clever   : 1
+	Flashy   : 2
+	Forceful : 3
+	Quick    : 4
+	Sneaky   : 5
+Aspects : 
+	1 : blah
+	2 : foo
+	3 : gig
+	4 : baba
+	5 : kiki
+Stunts : 
+	1 : wow
+	2 : fun
+	3 : zen
+Stress : 
+	1 : 
+	2 : Stubbed toe.
+	3 : 
+Consequences : 
+	2 : 
+	4 : Stubbed toe super hard.
+	6 : 
+autoload

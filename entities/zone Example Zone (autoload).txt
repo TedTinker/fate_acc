@@ -1,0 +1,6 @@
+Zone : Example Zone
+Agents : 
+	1 : Example Agent
+Obstacles : 
+	1 : Example Obstacle
+autoload

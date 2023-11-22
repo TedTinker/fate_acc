@@ -1,3 +1,5 @@
+#%%
+
 from utils import approach_list, align_colons, get_lines, maybe_int
     
     
@@ -7,14 +9,15 @@ class Entity:
     
     def __init__(
             self,
-            name = "",          # Name of the entity.
-            autoload = False,   # Automatically load entity when fate-environment opens?
-            **kwargs):          # Any other variables.
+            entity_type = "entity", # Replace with agent, obstacle, or zone.
+            name = "",              # Name of the entity.
+            autoload = False,       # Automatically load entity when fate-environment opens?
+            **kwargs):              # Any other variables.
         
-        self.entity_type = "entity" # Replace with agent, obstacle, or zone. 
-        self.name = name            # All entities have a name, and can be autoloaded.
+        self.entity_type = entity_type  # Replace with agent, obstacle, or zone. 
+        self.name = name                # All entities have a name, and can be autoloaded.
         self.autoload = autoload    
-        self.use_inputs(**kwargs)   # Other inputs.
+        self.use_inputs(**kwargs)       # Other inputs.
             
     # Use inputs.
     # Remake for agents, obstacles, and zones.
@@ -71,11 +74,10 @@ class Agent(Entity):
                  stunts         = {i : "" for i in [1,2,3]},        # Stunts
                  stress         = {i : "" for i in [1,2,3]},        # Stress
                  consequences   = {i : "" for i in [2,4,6]}):       # Consequences)
-        super().__init__(name, autoload, 
+        super().__init__(entity_type="agent", name=name, autoload=autoload, 
                          player=player, description=description, fate_points=fate_points, 
                          refresh=refresh, approaches=approaches, aspects=aspects, 
                          stunts=stunts, stress=stress, consequences=consequences)
-        self.entity_type = "agent"  
 
     # Override use_inputs method for Agent-specific behavior.
     def use_inputs(self, **kwargs):
@@ -137,16 +139,13 @@ align_colons(self.consequences),
     
 class Obstacle(Entity): 
     
-    def __init__(
-            self,
-            name = "",  autoload = False,
+    def __init__(self, name = "", autoload = False,
             now = 0,    # Current measure of overcoming the obstacle.
             win = 0,    # Measure of completly overcoming the obstacle. 
             lose = 0):  # Measure of failing the obstacle. 
         
-        super().__init__(name, autoload, 
+        super().__init__(entity_type="obstacle", name=name, autoload=autoload, 
                          now=now, win=win, lose=lose)
-        self.entity_type = "obstacle"  
         
     # Override use_inputs method for Obstacle-specific behavior.
     def use_inputs(self, **kwargs):
@@ -180,36 +179,35 @@ self.lose,
 class Zone(Entity):
     
     def __init__(self, name = "", autoload = False, 
-            entities    = {},
-            obstacles   = {}):
+            agents      = [],   # Agents in the zone.
+            obstacles   = []):  # Obstacles in the zone. 
         
-        super().__init__(name, autoload, 
-                         entities=entities, obstacles=obstacles)
-        self.entity_type = "zone"  
+        super().__init__(entity_type="zone", name=name, autoload=autoload, 
+                         agents=agents, obstacles=obstacles)
         
     # Override use_inputs method for Zone-specific behavior.
     def use_inputs(self, **kwargs):
-        self.entity_names = [entity.name for entity in kwargs["entities"]]
+        self.agent_names = [agent.name for agent in kwargs["agents"]]
         self.obstacle_names = [obstacle.name for obstacle in kwargs["obstacles"]]
         
     # Override load_line for Zone-specific file reading.
     def load_line(self, tab, variable_name, value, multiline_tracking):
         if(variable_name == "Zone"):            self.name           = value  
-        if(variable_name == "Entities"):        multiline_tracking  = "entities"
+        if(variable_name == "Agents"):          multiline_tracking  = "agents"
         if(variable_name == "Obstacles"):       multiline_tracking  = "obstacles"
         if(tab):
-            if(multiline_tracking == "entities"):   self.entity_names[variable_name] = value
-            if(multiline_tracking == "obstacles"):  self.entity_names[variable_name] = value
+            if(multiline_tracking == "agents"):     self.agent_names.append(value)
+            if(multiline_tracking == "obstacles"):  self.obstacle_names.append(value)
         return(multiline_tracking)
         
     # Override __str__ for Zone-specific string representation.
     def __str__(self):
         return(
 """Zone : {}
-Entities : {}
-Zones : {}{}""".format(
+Agents : {}
+Obstacles : {}{}""".format(
 self.name, 
-align_colons(self.entity_names), 
+align_colons(self.agent_names), 
 align_colons(self.obstacle_names),
 "\nautoload" if self.autoload else ""))
         
@@ -217,10 +215,10 @@ align_colons(self.obstacle_names),
 
 if __name__ == "__main__":
     
-    example_entity = Agent(
-        name = "Example Entity", 
+    example_agent = Agent(
+        name = "Example Agent", 
         player = "GM", 
-        description = "An entity in a Fate: Accelerated game", 
+        description = "A character in a Fate: Accelerated game", 
         refresh = 10, 
         aspects = {1 : "blah", 2 : "foo", 3 : "gig", 4 : "baba", 5 : "kiki"}, 
         approaches = {i : j for i, j in zip(approach_list, [0,1,2,3,4,5])}, 
@@ -228,45 +226,43 @@ if __name__ == "__main__":
         stress = {1 : "", 2 : "Stubbed toe.", 3 : ""},
         consequences = {2 : "", 4 : "Stubbed toe super hard.", 6 : ""},
         autoload = True)
-    print(example_entity)
+    print(example_agent)
     print("\n\nCan this be saved and loaded?\n\n")
-    example_entity.save()
-    del example_entity
-    example_entity = Entity(name = "Example Entity")
-    example_entity.load()
-    print(example_entity)
+    example_agent.save()
+    del example_agent
+    example_agent = Agent(name = "Example Agent")
+    example_agent.load()
+    print(example_agent)
     
     
     
     example_obstacle = Obstacle(
         name = "Example Obstacle",
         win = 10,
+        lose = -5,
         autoload = True)
-    
     print("\n\n")
     print(example_obstacle)
     print("\n\nCan this be saved and loaded?\n\n")
-    
     example_obstacle.save()
-    example_obstacle = Obstacle(
-        load = True,
-        name = "Example Obstacle")
+    del example_obstacle
+    example_obstacle = Obstacle(name = "Example Obstacle")
+    example_obstacle.load()
     print(example_obstacle)
     
     
     
     example_zone = Zone(
         name = "Example Zone",
-        entities = [example_entity],
+        agents = [example_agent],
         obstacles = [example_obstacle],
         autoload = True)
-    
     print("\n\n")
     print(example_zone)
     print("\n\nCan this be saved and loaded?\n\n")
-    
     example_zone.save()
-    example_zone = Zone(
-        load = True,
-        name = "Example Zone")
+    del example_zone
+    example_zone = Zone(name = "Example Zone")
+    example_zone.load()
     print(example_zone)
+# %%

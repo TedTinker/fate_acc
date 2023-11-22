@@ -1,3 +1,4 @@
+#%%
 # Default approches in Fate: Accelerated. Feel free to change them. 
 #approach_list = ["Careful", "Clever", "Flashy", "Forceful", "Quick", "Sneaky"]
 approach_list = ["Careful", "Clever", "Flashy", "Forceful", "Quick", "Sneaky"]
@@ -6,6 +7,8 @@ approach_list = ["Careful", "Clever", "Flashy", "Forceful", "Quick", "Sneaky"]
 
 # Function for printing name-value pairs from dictionaries with colons aligned.
 def align_colons(d):
+    if(type(d) == list): d = {i+1 : value for i, value in enumerate(d)}
+    if(d == {}): d = {0 : "None"}
     (names,values) = zip(*d.items()) 
     max_length = max(len(str(name)) for name in names)      
     aligned_text = ""
@@ -39,3 +42,4 @@ def maybe_int(this):
     try: this = int(this)
     except: pass 
     return(this)
+# %%

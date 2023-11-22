@@ -1,0 +1,5 @@
+Obstacle : Example Obstacle
+Now : 0
+Win : 10
+Lose : -5
+autoload
