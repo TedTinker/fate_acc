@@ -1,5 +1,6 @@
 Obstacle : Example Obstacle
 Now : 0
 Win : 10
-Lose : -5
+Lose : None
+Color : (0, 0, 0)
 autoload

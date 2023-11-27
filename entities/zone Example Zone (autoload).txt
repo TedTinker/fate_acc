@@ -3,4 +3,5 @@ Agents :
 	1 : Example Agent
 Obstacles : 
 	1 : Example Obstacle
+Color : (255, 255, 255)
 autoload

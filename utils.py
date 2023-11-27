@@ -1,6 +1,5 @@
 #%%
-# Default approches in Fate: Accelerated. Feel free to change them. 
-#approach_list = ["Careful", "Clever", "Flashy", "Forceful", "Quick", "Sneaky"]
+# Default approaches in Fate: Accelerated. Feel free to change them. 
 approach_list = ["Careful", "Clever", "Flashy", "Forceful", "Quick", "Sneaky"]
 
 
@@ -42,4 +41,11 @@ def maybe_int(this):
     try: this = int(this)
     except: pass 
     return(this)
+
+
+
+# Starting positions for agents, obstacles, and zones.
+agent_start_x = 350
+obstacle_start_x = 1050
+zone_start_x = 1450
 # %%

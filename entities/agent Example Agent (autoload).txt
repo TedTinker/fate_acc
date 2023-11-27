@@ -1,8 +1,8 @@
 Agent : Example Agent
 Player : GM
-Description : An character in a Fate: Accelerated game
-Fate Points : 3
+Description : A character in a Fate: Accelerated game
 Refresh : 10
+Fate Points : 3
 Approaches : 
 	Careful  : 0
 	Clever   : 1
@@ -28,4 +28,5 @@ Consequences :
 	2 : 
 	4 : Stubbed toe super hard.
 	6 : 
+Color : (255, 0, 0)
 autoload
